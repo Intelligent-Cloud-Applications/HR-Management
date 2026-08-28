@@ -4,77 +4,79 @@
 
 @layer base {
   :root {
-    /* Light Theme (Clean slate with electric blue accent) */
-    --background: 210 20% 98%;       /* #F8FAFC */
-    --foreground: 222 47% 11%;       /* #0F172A */
+    /* Light Theme */
+    --background: 0 0% 98%;         /* #FAFAFA */
+    --foreground: 0 0% 9%;          /* #171717 */
     --card: 0 0% 100%;              /* #FFFFFF */
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 9%;     /* #171717 */
+    --popover: 0 0% 100%;           /* #FFFFFF */
+    --popover-foreground: 0 0% 9%;  /* #171717 */
 
-    /* Tekkzy Electric Royal Blue */
-    --primary: 217 91% 60%;         /* #3B82F6 / #2563EB */
+    /* Tekkzy Royal Blue #2563EB */
+    --primary: 221 83% 53%;         /* #2563EB */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 95%;          /* #F2F2F2 */
+    --secondary-foreground: 0 0% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 95%;              /* #F2F2F2 */
+    --muted-foreground: 0 0% 42%;   /* #6B6B6B */
 
-    --accent: 210 40% 94%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84% 60%;
+    /* Desaturated Status Colors */
+    --destructive: 0 72% 51%;       /* #DC2626 */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 69% 31%;
+    --success: 152 69% 31%;         /* #15803D */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 44%;
+    --warning: 38 92% 44%;          /* #D97706 */
     --warning-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 199 89% 48%;
+    --border: 0 0% 90%;             /* #E5E5E5 */
+    --input: 0 0% 90%;              /* #E5E5E5 */
+    --ring: 221 83% 53%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;             /* rounded-md (6px) */
   }
 
   .dark {
-    /* Tekkzy Origin Theme: Deep Space #05050A, Surface #0D0D14, Borders #1E1E2E */
-    --background: 240 33% 3%;       /* #05050A (Pure Deep Space) */
-    --foreground: 210 40% 98%;      /* #F8FAFC */
-    --card: 240 21% 7%;             /* #0E0E16 */
-    --card-foreground: 210 40% 98%;
-    --popover: 240 21% 8%;          /* #10101A */
-    --popover-foreground: 210 40% 98%;
+    /* Dark Theme */
+    --background: 0 0% 5%;          /* #0D0D0D */
+    --foreground: 0 0% 96%;         /* #F5F5F5 */
+    --card: 0 0% 8.6%;              /* #161616 */
+    --card-foreground: 0 0% 96%;    /* #F5F5F5 */
+    --popover: 0 0% 9.5%;           /* #181818 */
+    --popover-foreground: 0 0% 96%; /* #F5F5F5 */
 
-    /* Tekkzy Electric Cyan / Blue #38BDF8 */
-    --primary: 199 89% 48%;         /* #0284C7 / #38BDF8 */
+    /* Tekkzy Royal Blue #2563EB */
+    --primary: 221 83% 53%;         /* #2563EB */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 18% 12%;        /* #181824 */
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 13%;          /* #212121 */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 240 18% 11%;           /* #151520 */
-    --muted-foreground: 215 20% 65%; /* #94A3B8 */
+    --muted: 0 0% 12%;              /* #1F1F1F */
+    --muted-foreground: 0 0% 63%;   /* #A0A0A0 */
 
-    --accent: 240 18% 14%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 0% 13%;
+    --accent-foreground: 0 0% 96%;
 
-    --destructive: 0 72% 51%;
+    /* Desaturated Status Colors */
+    --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 60% 39%;
+    --success: 152 55% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 80% 48%;
+    --warning: 38 75% 45%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 240 18% 15%;          /* #1E1E2E */
-    --input: 240 18% 15%;           /* #1E1E2E */
-    --ring: 199 89% 48%;            /* #38BDF8 */
+    --border: 0 0% 15%;             /* #262626 */
+    --input: 0 0% 15%;              /* #262626 */
+    --ring: 221 83% 53%;
   }
 }
 
@@ -96,14 +98,14 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.2);
-  border-radius: 9999px;
+  background: rgba(150, 150, 150, 0.25);
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.45);
+  background: rgba(150, 150, 150, 0.45);
 }
 
 /* Restrained transitions */
 button, a, input, select, textarea {
-  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease;
 }

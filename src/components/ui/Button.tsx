@@ -9,38 +9,34 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "md", isLoading, children, disabled, ...props }, ref) => {
-    const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38BDF8]/50 disabled:pointer-events-none disabled:opacity-50 select-none text-xs"
+    const baseStyles = "inline-flex items-center justify-center font-medium rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#2563EB] disabled:pointer-events-none disabled:opacity-50 select-none text-xs"
 
     const variants = {
-      // Primary: Electric Blue / Tekkzy Origin Gradient
-      default: "rounded-full bg-gradient-to-r from-[#2563EB] via-[#0284C7] to-[#38BDF8] text-white font-semibold shadow-[0_0_16px_rgba(56,189,248,0.3)] hover:shadow-[0_0_22px_rgba(56,189,248,0.5)] hover:opacity-95 active:scale-[0.98]",
+      // Primary: Tekkzy Royal Blue (#2563EB)
+      default: "bg-[#2563EB] text-white hover:bg-[#1D4ED8] shadow-xs font-medium",
       
-      // Secondary: Sleek Dark Pill
-      secondary: "rounded-full bg-[#111118] text-zinc-300 hover:text-white hover:bg-[#181824] border border-[#27273A]",
+      // Secondary: Crisp Flat Neutral
+      secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border",
       
-      // Outline: Tekkzy Origin Glowing Border Pill (like "Digitize Now")
-      outline: "rounded-full border border-[#38BDF8]/50 bg-black/40 text-white hover:bg-[#38BDF8]/10 hover:border-[#38BDF8] shadow-[0_0_12px_rgba(56,189,248,0.15)]",
+      // Outline: 1px hairline border
+      outline: "border border-border bg-background hover:bg-muted text-foreground",
       
-      // Ghost: Minimal hover
-      ghost: "rounded-md hover:bg-white/[0.06] text-zinc-300 hover:text-white",
+      // Ghost
+      ghost: "hover:bg-muted text-foreground",
       
       // Destructive
-      destructive: "rounded-full bg-rose-600/90 text-white hover:bg-rose-600 border border-rose-500/40 shadow-xs",
+      destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       
-      // Glow pill
-      glow: "rounded-full border border-[#38BDF8] bg-[#38BDF8]/10 text-white hover:bg-[#38BDF8]/20 shadow-[0_0_20px_rgba(56,189,248,0.4)]",
-
-      // Origin Website Pill
-      pill: "rounded-full border border-zinc-800 bg-zinc-950/80 text-zinc-300 hover:text-white hover:border-[#38BDF8]/60",
-
-      link: "text-[#38BDF8] underline-offset-4 hover:underline p-0 h-auto font-normal",
+      glow: "bg-[#2563EB] text-white hover:bg-[#1D4ED8]",
+      pill: "bg-[#2563EB] text-white hover:bg-[#1D4ED8]",
+      link: "text-[#2563EB] underline-offset-4 hover:underline p-0 h-auto font-normal",
     }
 
     const sizes = {
-      sm: "h-7.5 px-3.5 text-xs gap-1.5",
-      md: "h-8.5 px-4 text-xs gap-2",
-      lg: "h-10 px-5 text-sm font-medium gap-2",
-      icon: "h-8 w-8 rounded-full p-0",
+      sm: "h-8 px-3 text-xs gap-1.5",
+      md: "h-9 px-3.5 text-xs gap-2",
+      lg: "h-10 px-4 text-sm font-medium gap-2",
+      icon: "h-8 w-8 p-0",
     }
 
     return (
