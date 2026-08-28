@@ -13,9 +13,9 @@ export const Logo: React.FC<LogoProps> = ({
   className = "",
 }) => {
   const heights = {
-    sm: "h-7 max-w-[130px]",
-    md: "h-9 max-w-[190px]",
-    lg: "h-11 max-w-[240px]",
+    sm: "h-8 max-w-[140px]",
+    md: "h-10 max-w-[205px]",
+    lg: "h-12 max-w-[260px]",
   }
 
   return (
@@ -24,7 +24,7 @@ export const Logo: React.FC<LogoProps> = ({
       <img
         src={logoImg}
         alt="TekkzyWork - HR Management Tool"
-        className={`${heights[size]} w-auto object-contain shrink-0 drop-shadow-sm`}
+        className={`${heights[size]} w-auto object-contain shrink-0`}
       />
 
       {showBadge && (
