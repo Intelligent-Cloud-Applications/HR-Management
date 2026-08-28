@@ -4,7 +4,6 @@ import logoImg from "@/assets/logo.png"
 interface LogoProps {
   size?: "sm" | "md" | "lg"
   showBadge?: boolean
-  showText?: boolean
   className?: string
 }
 
@@ -14,22 +13,22 @@ export const Logo: React.FC<LogoProps> = ({
   className = "",
 }) => {
   const heights = {
-    sm: "h-6 max-w-[110px]",
-    md: "h-7 sm:h-7.5 max-w-[155px]",
-    lg: "h-9 max-w-[200px]",
+    sm: "h-7 max-w-[130px]",
+    md: "h-9 max-w-[190px]",
+    lg: "h-11 max-w-[240px]",
   }
 
   return (
     <div className={`flex items-center gap-2 select-none ${className}`}>
-      {/* Official Horizontal TekkzyWork Brand Banner */}
+      {/* Official Transparent High-Res TekkzyWork Brand Banner */}
       <img
         src={logoImg}
         alt="TekkzyWork - HR Management Tool"
-        className={`${heights[size]} w-auto object-contain shrink-0`}
+        className={`${heights[size]} w-auto object-contain shrink-0 drop-shadow-sm`}
       />
 
       {showBadge && (
-        <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border">
+        <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border">
           Enterprise
         </span>
       )}

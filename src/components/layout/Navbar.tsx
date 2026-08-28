@@ -10,9 +10,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur-xs">
-      <div className="container max-w-6xl mx-auto flex h-12 items-center justify-between px-4">
+      <div className="container max-w-6xl mx-auto flex h-14 items-center justify-between px-4">
         {/* Brand */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 py-1">
           <Logo size="md" />
         </Link>
 

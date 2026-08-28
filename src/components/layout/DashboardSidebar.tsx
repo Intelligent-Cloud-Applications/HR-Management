@@ -52,8 +52,8 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#111114] text-[#E4E4E7] border-r border-[#26262B] select-none font-sans">
       {/* Brand Header */}
-      <div className="flex items-center justify-between h-14 px-4 border-b border-[#26262B]">
-        <Link to="/" className="flex items-center gap-2 overflow-hidden">
+      <div className="flex items-center justify-between h-16 px-3.5 border-b border-[#26262B]">
+        <Link to="/" className="flex items-center gap-2 overflow-hidden py-1">
           <Logo size={isCollapsed ? "sm" : "md"} />
         </Link>
         <button
