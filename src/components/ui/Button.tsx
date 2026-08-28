@@ -12,12 +12,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = "inline-flex items-center justify-center font-medium rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 select-none text-sm"
 
     const variants = {
-      default: "bg-primary text-primary-foreground hover:bg-primary/90",
+      default: "bg-gradient-to-b from-[#312E81] via-[#242168] to-[#171542] text-white border border-[#4338CA]/40 hover:from-[#3730A3] hover:to-[#1E1B4B] shadow-xs",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border",
       outline: "border border-border bg-background hover:bg-muted text-foreground",
       ghost: "hover:bg-muted text-foreground",
       destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      glow: "bg-primary text-primary-foreground hover:bg-primary/90", // single solid accent
+      glow: "bg-gradient-to-b from-[#312E81] to-[#171542] text-white border border-[#4338CA]/50 hover:from-[#3730A3] hover:to-[#1E1B4B] shadow-xs",
       link: "text-primary underline-offset-4 hover:underline p-0 h-auto font-normal",
     }
 
