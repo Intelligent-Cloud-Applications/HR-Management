@@ -52,13 +52,13 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
   const sidebarContent = (
     <div className="flex flex-col h-full bg-card text-foreground border-r border-border select-none font-sans">
       {/* Brand Header */}
-      <div className="flex items-center justify-between h-16 px-3.5 border-b border-border">
+      <div className="flex items-center justify-between h-[72px] px-3.5 border-b border-border">
         <Link to="/" className="flex items-center gap-2 overflow-hidden py-1">
           <Logo size={isCollapsed ? "sm" : "md"} />
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden md:flex items-center justify-center p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="hidden md:flex items-center justify-center p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -158,7 +158,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
       <aside
         className={cn(
           "hidden md:flex flex-col fixed inset-y-0 left-0 z-30 transition-all duration-150 ease-in-out",
-          isCollapsed ? "w-14" : "w-60"
+          isCollapsed ? "w-14" : "w-64"
         )}
       >
         {sidebarContent}

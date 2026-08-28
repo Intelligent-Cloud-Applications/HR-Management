@@ -13,14 +13,14 @@ export const Logo: React.FC<LogoProps> = ({
   className = "",
 }) => {
   const heights = {
-    sm: "h-8 max-w-[140px]",
-    md: "h-10 max-w-[205px]",
-    lg: "h-12 max-w-[260px]",
+    sm: "h-9 max-w-[150px]",
+    md: "h-12 max-w-[230px]",
+    lg: "h-14 max-w-[280px]",
   }
 
   return (
     <div className={`flex items-center gap-2 select-none ${className}`}>
-      {/* Official Transparent High-Res TekkzyWork Brand Banner */}
+      {/* Official Transparent High-Res TekkzyWork Brand Banner - Large */}
       <img
         src={logoImg}
         alt="TekkzyWork - HR Management Tool"

@@ -22,7 +22,7 @@ export const DashboardLayout: React.FC = () => {
       <div
         className={cn(
           "flex-1 flex flex-col transition-all duration-150 ease-in-out",
-          isCollapsed ? "md:pl-14" : "md:pl-60"
+          isCollapsed ? "md:pl-14" : "md:pl-64"
         )}
       >
         {/* Top Navbar */}
