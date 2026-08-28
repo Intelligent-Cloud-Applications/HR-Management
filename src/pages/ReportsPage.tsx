@@ -162,7 +162,7 @@ export const ReportsPage: React.FC = () => {
                     fontSize: "11px",
                   }}
                 />
-                <Bar dataKey="avgSalaryLakhs" name="Avg CTC (₹ Lakhs)" fill="#4F46E5" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="avgSalaryLakhs" name="Avg CTC (₹ Lakhs)" fill="#3730A3" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

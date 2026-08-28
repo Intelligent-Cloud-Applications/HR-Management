@@ -51,11 +51,11 @@ const headcountData = [
 ]
 
 const departmentPieData = [
-  { name: "Engineering", value: 42, color: "#4F46E5" },
-  { name: "Product & Design", value: 14, color: "#6B7280" },
-  { name: "Sales & Marketing", value: 16, color: "#9CA3AF" },
-  { name: "HR & People", value: 8, color: "#D1D5DB" },
-  { name: "Finance & Legal", value: 6, color: "#374151" },
+  { name: "Engineering", value: 42, color: "#3730A3" },
+  { name: "Product & Design", value: 14, color: "#4B5563" },
+  { name: "Sales & Marketing", value: 16, color: "#6B7280" },
+  { name: "HR & People", value: 8, color: "#9CA3AF" },
+  { name: "Finance & Legal", value: 6, color: "#1F2937" },
 ]
 
 const attendanceBarData = [
@@ -257,9 +257,9 @@ export const DashboardOverview: React.FC = () => {
                 <Line
                   type="monotone"
                   dataKey="employees"
-                  stroke="#4F46E5"
+                  stroke="#3730A3"
                   strokeWidth={2}
-                  dot={{ r: 3, fill: "#4F46E5" }}
+                  dot={{ r: 3, fill: "#3730A3" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -347,7 +347,7 @@ export const DashboardOverview: React.FC = () => {
                 <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "6px" }} />
                 <Bar dataKey="Present" fill="#15803D" radius={[2, 2, 0, 0]} />
                 <Bar dataKey="Late" fill="#D97706" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="WFH" fill="#4F46E5" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="WFH" fill="#312E81" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

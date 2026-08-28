@@ -56,7 +56,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
           {/* Logo with bright text on dark sidebar */}
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-[#4F46E5] text-white flex items-center justify-center font-bold text-xs shrink-0 border border-[#6366F1]/40">
+            <div className="w-7 h-7 rounded-md bg-[#3730A3] text-white flex items-center justify-center font-bold text-xs shrink-0 border border-[#4338CA]/50">
               T
             </div>
             {!isCollapsed && (
@@ -96,7 +96,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] font-medium transition-colors relative group",
                 isActive
-                  ? "bg-white/[0.08] text-white font-semibold border-l-2 border-[#4F46E5] pl-2.5"
+                  ? "bg-white/[0.08] text-white font-semibold border-l-2 border-[#4338CA] pl-2.5"
                   : "text-zinc-400 hover:text-white hover:bg-white/[0.05]"
               )}
               title={isCollapsed ? item.label : undefined}
@@ -104,7 +104,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
               <Icon
                 className={cn(
                   "w-[18px] h-[18px] shrink-0 transition-colors",
-                  isActive ? "text-[#818CF8]" : "text-zinc-400 group-hover:text-white"
+                  isActive ? "text-[#A5B4FC]" : "text-zinc-400 group-hover:text-white"
                 )}
               />
 
@@ -143,7 +143,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
             isCollapsed && "justify-center p-1.5"
           )}
         >
-          <div className="w-7 h-7 rounded bg-[#4F46E5]/20 text-[#818CF8] flex items-center justify-center font-bold text-xs shrink-0 border border-[#6366F1]/30">
+          <div className="w-7 h-7 rounded bg-[#3730A3]/40 text-[#A5B4FC] flex items-center justify-center font-bold text-xs shrink-0 border border-[#4338CA]/40">
             AS
           </div>
           {!isCollapsed && (
