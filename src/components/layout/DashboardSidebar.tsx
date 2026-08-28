@@ -54,17 +54,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
       {/* Brand Header */}
       <div className="flex items-center justify-between h-14 px-4 border-b border-[#26262B]">
         <Link to="/" className="flex items-center gap-2 overflow-hidden">
-          {/* Logo with bright text on dark sidebar */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-[#3730A3] text-white flex items-center justify-center font-bold text-xs shrink-0 border border-[#4338CA]/50">
-              T
-            </div>
-            {!isCollapsed && (
-              <span className="text-base font-semibold tracking-tight text-white">
-                Tekkzy<span className="text-zinc-400 font-normal">Work</span>
-              </span>
-            )}
-          </div>
+          <Logo size={isCollapsed ? "sm" : "md"} />
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
