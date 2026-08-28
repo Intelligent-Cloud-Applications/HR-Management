@@ -50,15 +50,15 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
   ]
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-card text-foreground border-r border-border select-none font-sans">
+    <div className="flex flex-col h-full bg-[#161616] text-[#F5F5F5] border-r border-[#262626] select-none font-sans">
       {/* Brand Header */}
-      <div className="flex items-center justify-between h-[72px] px-3.5 border-b border-border">
+      <div className="flex items-center justify-between h-[72px] px-3.5 border-b border-[#262626]">
         <Link to="/" className="flex items-center gap-2 overflow-hidden py-1">
           <Logo size={isCollapsed ? "sm" : "md"} />
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden md:flex items-center justify-center p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="hidden md:flex items-center justify-center p-1.5 rounded-md text-[#A0A0A0] hover:text-[#FFFFFF] hover:bg-white/[0.08] transition-colors"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -68,7 +68,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
       {/* Navigation list */}
       <div className="flex-1 overflow-y-auto py-3 px-2.5 space-y-1">
         {!isCollapsed && (
-          <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
             Workspace
           </div>
         )}
@@ -86,15 +86,15 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] font-medium transition-colors relative group",
                 isActive
-                  ? "bg-muted text-foreground font-semibold border-l-2 border-primary pl-2.5"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-white/[0.08] text-[#FFFFFF] font-semibold border-l-2 border-[#2563EB] pl-2.5"
+                  : "text-[#A0A0A0] hover:text-[#FFFFFF] hover:bg-white/[0.05]"
               )}
               title={isCollapsed ? item.label : undefined}
             >
               <Icon
                 className={cn(
                   "w-[18px] h-[18px] shrink-0 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                  isActive ? "text-[#3B82F6]" : "text-[#A0A0A0] group-hover:text-[#FFFFFF]"
                 )}
               />
 
@@ -102,7 +102,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
                 <div className="flex items-center justify-between w-full truncate">
                   <span className="truncate">{item.label}</span>
                   {item.badge && (
-                    <span className="ml-auto text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border shrink-0">
+                    <span className="ml-auto text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-white/[0.08] text-[#D4D4D4] border border-[#333333] shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -114,11 +114,11 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Profile Box */}
-      <div className="p-2.5 border-t border-border space-y-1.5">
+      <div className="p-2.5 border-t border-[#262626] space-y-1.5">
         <Link
           to="/"
           className={cn(
-            "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors",
+            "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs text-[#A0A0A0] hover:text-[#FFFFFF] hover:bg-white/[0.05] transition-colors",
             isCollapsed && "justify-center"
           )}
           title="Back to Landing Page"
@@ -129,21 +129,21 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
 
         <div
           className={cn(
-            "flex items-center gap-2.5 p-2 rounded-md bg-muted/40 border border-border",
+            "flex items-center gap-2.5 p-2 rounded-md bg-white/[0.04] border border-[#262626]",
             isCollapsed && "justify-center p-1.5"
           )}
         >
-          <div className="w-7 h-7 rounded bg-primary/20 text-primary flex items-center justify-center font-bold text-xs shrink-0 border border-primary/30">
+          <div className="w-7 h-7 rounded bg-[#2563EB]/25 text-[#60A5FA] flex items-center justify-center font-bold text-xs shrink-0 border border-[#2563EB]/40">
             AS
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-foreground truncate leading-tight">Aarav Sharma</p>
-              <p className="text-[10px] text-muted-foreground truncate">Admin • Tekkzy</p>
+              <p className="text-xs font-semibold text-[#F5F5F5] truncate leading-tight">Aarav Sharma</p>
+              <p className="text-[10px] text-[#A0A0A0] truncate">Admin • Tekkzy</p>
             </div>
           )}
           {!isCollapsed && (
-            <Link to="/login" title="Logout" className="text-muted-foreground hover:text-destructive p-1 transition-colors">
+            <Link to="/login" title="Logout" className="text-[#A0A0A0] hover:text-rose-400 p-1 transition-colors">
               <LogOut className="w-4 h-4" />
             </Link>
           )}
@@ -171,7 +171,7 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
             className="fixed inset-0 bg-black/60 transition-opacity"
             onClick={() => setIsMobileOpen(false)}
           />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full z-10 shadow-xl border-r border-border">
+          <div className="relative flex-1 flex flex-col max-w-xs w-full z-10 shadow-xl border-r border-[#262626]">
             {sidebarContent}
           </div>
         </div>
