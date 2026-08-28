@@ -11,28 +11,21 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({
   size = "md",
   showBadge = false,
-  showText = true,
   className = "",
 }) => {
   const heights = {
-    sm: "h-6",
-    md: "h-8",
-    lg: "h-10",
-  }
-
-  const iconSizes = {
-    sm: "w-6 h-6",
-    md: "w-8 h-8",
-    lg: "w-10 h-10",
+    sm: "h-6 max-w-[110px]",
+    md: "h-7 sm:h-7.5 max-w-[155px]",
+    lg: "h-9 max-w-[200px]",
   }
 
   return (
-    <div className={`flex items-center gap-2.5 select-none ${className}`}>
-      {/* Official TekkzyWork High-Res Logo Mark */}
+    <div className={`flex items-center gap-2 select-none ${className}`}>
+      {/* Official Horizontal TekkzyWork Brand Banner */}
       <img
         src={logoImg}
-        alt="TekkzyWork Logo"
-        className={`${heights[size]} w-auto object-contain rounded shrink-0`}
+        alt="TekkzyWork - HR Management Tool"
+        className={`${heights[size]} w-auto object-contain shrink-0`}
       />
 
       {showBadge && (
