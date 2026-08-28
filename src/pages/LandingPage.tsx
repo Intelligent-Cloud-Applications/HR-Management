@@ -73,31 +73,41 @@ export const LandingPage: React.FC = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="py-14 md:py-20 border-b border-border">
-        <div className="container max-w-5xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-border bg-muted/50 text-[11px] font-medium text-muted-foreground mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <span>TekkzyWork 2026 Enterprise Edition</span>
+      <section className="py-14 md:py-24 border-b border-[#1E1E2E] relative overflow-hidden bg-[#05050A]">
+        {/* Origin Horizon Grid Glow Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e1e2e15_1px,transparent_1px),linear-gradient(to_bottom,#1e1e2e15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-64 bg-[#38BDF8]/10 blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="container max-w-5xl mx-auto px-4 text-center relative z-10">
+          {/* Origin NEW Pill Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-950/90 text-xs text-zinc-300 mb-6 shadow-[0_0_15px_rgba(56,189,248,0.15)]">
+            <span className="px-2 py-0.5 rounded-full bg-[#2563EB] text-[10px] font-bold text-white tracking-wide">
+              NEW
+            </span>
+            <span className="text-[11px] text-zinc-400">You Think We Create • TekkzyWork</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight max-w-3xl mx-auto leading-tight mb-4 text-foreground">
-            Run your workforce with <span className="text-primary font-bold">TekkzyWork</span>
+          <h1 className="text-3xl sm:text-6xl font-bold tracking-tight max-w-3xl mx-auto leading-tight mb-4 text-white">
+            Run Your Workforce <br />
+            <span className="bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#818CF8] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(56,189,248,0.35)]">
+              Operations Instantly.
+            </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto mb-8 font-normal leading-relaxed">
-            The minimal, high-density HR management system for growing organizations. Unified directory, attendance tracking, Indian tax payroll, and recruitment.
+          <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto mb-8 font-normal leading-relaxed">
+            The intelligent HR & workforce cloud by Tekkzy. Unified staff directory, shift tracking, Indian statutory tax payroll, and recruitment.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             <Link to="/dashboard">
-              <Button size="md" variant="default" className="gap-2 font-medium">
+              <Button size="lg" variant="default" className="gap-2 font-semibold">
                 Launch Live App Demo
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
             <Link to="/login">
-              <Button size="md" variant="outline">
-                Sign In to Portal
+              <Button size="lg" variant="outline" className="gap-2">
+                Digitize Now
               </Button>
             </Link>
           </div>

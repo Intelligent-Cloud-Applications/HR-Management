@@ -53,11 +53,11 @@ const headcountData = [
 ]
 
 const departmentPieData = [
-  { name: "Engineering", value: 42, color: "#312E81" },
-  { name: "Product & Design", value: 14, color: "#1E293B" },
-  { name: "Sales & Marketing", value: 16, color: "#334155" },
+  { name: "Engineering", value: 42, color: "#38BDF8" },
+  { name: "Product & Design", value: 14, color: "#60A5FA" },
+  { name: "Sales & Marketing", value: 16, color: "#818CF8" },
   { name: "HR & People", value: 8, color: "#475569" },
-  { name: "Finance & Legal", value: 6, color: "#0F172A" },
+  { name: "Finance & Legal", value: 6, color: "#1E293B" },
 ]
 
 const attendanceBarData = [
@@ -247,30 +247,32 @@ export const DashboardOverview: React.FC = () => {
               <AreaChart data={headcountData} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="headcountGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#312E81" stopOpacity={0.65}/>
-                    <stop offset="70%" stopColor="#1E1B4B" stopOpacity={0.2}/>
-                    <stop offset="100%" stopColor="#0D0D0D" stopOpacity={0.0}/>
+                    <stop offset="0%" stopColor="#38BDF8" stopOpacity={0.4}/>
+                    <stop offset="60%" stopColor="#2563EB" stopOpacity={0.15}/>
+                    <stop offset="100%" stopColor="#05050A" stopOpacity={0.0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="2 2" stroke="rgba(150, 150, 150, 0.12)" />
-                <XAxis dataKey="month" stroke="#888888" fontSize={11} tickLine={false} />
-                <YAxis stroke="#888888" fontSize={11} tickLine={false} domain={['dataMin - 10', 'dataMax + 10']} />
+                <CartesianGrid strokeDasharray="2 2" stroke="rgba(56, 189, 248, 0.08)" />
+                <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748B" fontSize={11} tickLine={false} domain={['dataMin - 10', 'dataMax + 10']} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    borderColor: "hsl(var(--border))",
-                    borderRadius: "0.25rem",
+                    backgroundColor: "#0D0D14",
+                    borderColor: "#1E1E2E",
+                    borderRadius: "0.5rem",
                     fontSize: "11px",
+                    color: "#F8FAFC",
+                    boxShadow: "0 0 15px rgba(56,189,248,0.15)"
                   }}
                 />
                 <Area
                   type="monotone"
                   dataKey="employees"
-                  stroke="#4338CA"
-                  strokeWidth={2}
+                  stroke="#38BDF8"
+                  strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#headcountGrad)"
-                  dot={{ r: 3.5, fill: "#4338CA", strokeWidth: 1.5, stroke: "#1E1B4B" }}
+                  dot={{ r: 4, fill: "#38BDF8", strokeWidth: 2, stroke: "#05050A" }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -278,7 +280,7 @@ export const DashboardOverview: React.FC = () => {
         </Card>
 
         {/* Department Distribution Donut */}
-        <Card className="p-4 flex flex-col justify-between">
+        <Card className="p-4 flex flex-col justify-between border-[#1E1E2E] bg-[#0E0E16]">
           <CardHeader className="p-0 pb-2">
             <CardTitle>Department Breakdown</CardTitle>
             <CardDescription>Headcount by unit</CardDescription>
@@ -292,7 +294,7 @@ export const DashboardOverview: React.FC = () => {
                   cy="50%"
                   innerRadius={45}
                   outerRadius={65}
-                  paddingAngle={2}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {departmentPieData.map((entry, index) => (
@@ -301,27 +303,28 @@ export const DashboardOverview: React.FC = () => {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    borderColor: "hsl(var(--border))",
-                    borderRadius: "0.25rem",
+                    backgroundColor: "#0D0D14",
+                    borderColor: "#1E1E2E",
+                    borderRadius: "0.5rem",
                     fontSize: "11px",
+                    color: "#F8FAFC",
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-lg font-mono font-semibold text-foreground">128</span>
-              <span className="text-[10px] text-muted-foreground uppercase">Staff</span>
+              <span className="text-lg font-mono font-bold text-white">128</span>
+              <span className="text-[10px] text-[#38BDF8] uppercase tracking-wider font-semibold">Staff</span>
             </div>
           </div>
-          <div className="space-y-1 text-[11px] pt-2 border-t border-border">
+          <div className="space-y-1 text-[11px] pt-2 border-t border-[#1E1E2E]">
             {departmentPieData.map((d) => (
               <div key={d.name} className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-zinc-400">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
                   {d.name}
                 </span>
-                <span className="font-mono text-foreground">{d.value}</span>
+                <span className="font-mono text-white font-medium">{d.value}</span>
               </div>
             ))}
           </div>
@@ -331,13 +334,13 @@ export const DashboardOverview: React.FC = () => {
       {/* Attendance Bar & Activity Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Attendance Breakdown */}
-        <Card className="lg:col-span-2 p-4">
+        <Card className="lg:col-span-2 p-4 border-[#1E1E2E] bg-[#0E0E16]">
           <CardHeader className="p-0 pb-3 flex flex-row items-center justify-between">
             <div>
               <CardTitle>Attendance Distribution (Weekly)</CardTitle>
               <CardDescription>Present, Late, and WFH daily split</CardDescription>
             </div>
-            <Link to="/dashboard/attendance" className="text-xs text-primary hover:underline flex items-center gap-1">
+            <Link to="/dashboard/attendance" className="text-xs text-[#38BDF8] hover:underline flex items-center gap-1">
               View Log <ArrowUpRight className="w-3 h-3" />
             </Link>
           </CardHeader>
@@ -346,33 +349,34 @@ export const DashboardOverview: React.FC = () => {
               <BarChart data={attendanceBarData} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="wfhGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3730A3" />
-                    <stop offset="100%" stopColor="#1E1B4B" />
+                    <stop offset="0%" stopColor="#38BDF8" />
+                    <stop offset="100%" stopColor="#1E3A8A" />
                   </linearGradient>
                   <linearGradient id="presentGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#15803D" />
-                    <stop offset="100%" stopColor="#052E16" />
+                    <stop offset="0%" stopColor="#34D399" />
+                    <stop offset="100%" stopColor="#065F46" />
                   </linearGradient>
                   <linearGradient id="lateGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#D97706" />
-                    <stop offset="100%" stopColor="#451A03" />
+                    <stop offset="0%" stopColor="#FBBF24" />
+                    <stop offset="100%" stopColor="#92400E" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="2 2" stroke="rgba(150, 150, 150, 0.12)" />
-                <XAxis dataKey="day" stroke="#888888" fontSize={11} tickLine={false} />
-                <YAxis stroke="#888888" fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="2 2" stroke="rgba(56, 189, 248, 0.08)" />
+                <XAxis dataKey="day" stroke="#64748B" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    borderColor: "hsl(var(--border))",
-                    borderRadius: "0.25rem",
+                    backgroundColor: "#0D0D14",
+                    borderColor: "#1E1E2E",
+                    borderRadius: "0.5rem",
                     fontSize: "11px",
+                    color: "#F8FAFC",
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "6px" }} />
-                <Bar dataKey="Present" fill="url(#presentGrad)" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Late" fill="url(#lateGrad)" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="WFH" fill="url(#wfhGrad)" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Present" fill="url(#presentGrad)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Late" fill="url(#lateGrad)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="WFH" fill="url(#wfhGrad)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
