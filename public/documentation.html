@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TekkzyWork — Enterprise HR Management System Documentation</title>
+  <meta name="description" content="Official technical and functional documentation for TekkzyWork HR Management System. Features, modules, architecture, data schemas, statutory payroll, and deployment guide.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --bg-card: #161e2e;
+      --bg-card-hover: #1e293b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-color-strong: rgba(255, 255, 255, 0.16);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-blue: #3b82f6;
+      --accent-blue-light: #60a5fa;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --sidebar-width: 280px;
+      --header-height: 64px;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
+    }
+
+    html.light {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-color-strong: rgba(0, 0, 0, 0.16);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent-blue-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(59, 130, 246, 0.12);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-box {
+      position: relative;
+      width: 280px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px 8px 36px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-color-strong);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    /* Main Container */
+    .layout-container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      padding: 20px 16px;
+      z-index: 40;
+    }
+
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc-item a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .toc-item a:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .toc-item.active a {
+      background: rgba(59, 130, 246, 0.12);
+      color: var(--accent-blue-light);
+      font-weight: 600;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .toc-badge {
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 40px 60px 80px;
+      max-width: 1140px;
+    }
+
+    /* Doc Header Section */
+    .doc-banner {
+      background: linear-gradient(135deg, rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.9));
+      border: 1px solid var(--border-color-strong);
+      border-radius: 12px;
+      padding: 36px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .doc-banner::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+    }
+
+    .doc-badge-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid transparent;
+    }
+
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+    .badge-purple { background: rgba(147, 51, 234, 0.15); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }
+
+    .doc-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .doc-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 800px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 2px;
+    }
+
+    /* Content Typography & Sections */
+    section {
+      margin-bottom: 56px;
+      scroll-margin-top: 90px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 28px 0 14px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    ul, ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* UI Cards Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card:hover {
+      border-color: var(--border-color-strong);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Data Tables */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: 20px 0;
+      background: var(--bg-card);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 600;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Code Blocks */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: 18px 0;
+      overflow: hidden;
+    }
+
+    .code-header {
+      background: #161b22;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    pre {
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #e6edf3;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      background: var(--bg-tertiary);
+      color: var(--accent-blue-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12.5px;
+    }
+
+    /* Accordion / Details */
+    details {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    summary {
+      padding: 14px 18px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease;
+    }
+
+    summary:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .details-content {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      font-size: 13.5px;
+    }
+
+    /* Architecture Diagram Box */
+    .arch-diagram {
+      background: var(--bg-secondary);
+      border: 1px dashed var(--border-color-strong);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .arch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .arch-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 160px;
+      font-weight: 600;
+      font-size: 13px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .arch-node.primary {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue-light);
+    }
+
+    .arch-node.emerald {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+    }
+
+    .arch-arrow {
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    /* Toast Notification */
+    #toast-notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-emerald);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+
+    #toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Print Styles */
+    @media print {
+      header, aside, .header-actions, .search-box, .btn {
+        display: none !important;
+      }
+      main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .doc-banner, .card, .table-wrapper, .code-block, details {
+        border: 1px solid #cccccc !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+      }
+      .doc-title, h2, h3, strong {
+        color: #000000 !important;
+        -webkit-text-fill-color: initial !important;
+      }
+      section {
+        page-break-inside: avoid;
+      }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      aside {
+        display: none;
+      }
+      main {
+        margin-left: 0;
+        padding: 24px;
+      }
+      .search-box {
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Bar -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">T</div>
+      <div>
+        <div class="brand-title">TekkzyWork</div>
+      </div>
+      <span class="brand-subtitle">System Docs v2.4.0</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" id="docSearchInput" placeholder="Search documentation... (Press Ctrl+K)">
+      </div>
+
+      <button class="btn" onclick="toggleTheme()" id="themeToggleBtn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+        <span>Theme</span>
+      </button>
+
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        <span>Export PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout-container">
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div class="toc-title">Table of Contents</div>
+      <ul class="toc-list" id="tocList">
+        <li class="toc-item active"><a href="#overview"><span>1. Executive Overview</span> <span class="toc-badge">01</span></a></li>
+        <li class="toc-item"><a href="#architecture"><span>2. Architecture & Tech</span> <span class="toc-badge">02</span></a></li>
+        <li class="toc-item"><a href="#roles"><span>3. User Roles & RBAC</span> <span class="toc-badge">03</span></a></li>
+        <li class="toc-item"><a href="#routes"><span>4. Route Map</span> <span class="toc-badge">04</span></a></li>
+        <li class="toc-item"><a href="#modules"><span>5. Core Modules (13)</span> <span class="toc-badge">05</span></a></li>
+        <li class="toc-item"><a href="#schemas"><span>6. Data Schemas</span> <span class="toc-badge">06</span></a></li>
+        <li class="toc-item"><a href="#statutory"><span>7. Statutory Rules</span> <span class="toc-badge">07</span></a></li>
+        <li class="toc-item"><a href="#deployment"><span>8. Setup & Build</span> <span class="toc-badge">08</span></a></li>
+        <li class="toc-item"><a href="#faq"><span>9. Troubleshooting</span> <span class="toc-badge">09</span></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Hero Banner -->
+      <div class="doc-banner" id="overview">
+        <div class="doc-badge-group">
+          <span class="badge badge-blue">Tekkzy Intelligent Cloud Applications</span>
+          <span class="badge badge-emerald">Indian Statutory Compliant</span>
+          <span class="badge badge-purple">React 18 + Vite + TS</span>
+          <span class="badge badge-amber">Production Ready</span>
+        </div>
+        <h1 class="doc-title">TekkzyWork — Enterprise HR Management System</h1>
+        <p class="doc-subtitle">
+          Complete Functional & Technical Specifications Document. TekkzyWork consolidates workforce operations, shift tracking, Indian statutory payroll (TDS, PF, PT), talent acquisition ATS, and performance OKRs into a single high-density platform.
+        </p>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Document Version</span>
+            <span class="meta-value">v2.4.0 (Build 2026.08)</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Target Organization</span>
+            <span class="meta-value">Tekkzy Cloud Pvt. Ltd.</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Total Functional Modules</span>
+            <span class="meta-value">13 Cohesive Modules</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Type Safety</span>
+            <span class="meta-value">100% Strict TypeScript</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 1: Executive Overview -->
+      <section>
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          1. Executive Overview & Key Differentiators
+        </h2>
+        <p>
+          TekkzyWork is designed to bridge the gap between heavy enterprise legacy ERP systems and fragile spreadsheets. Built with a data-forward design philosophy, it allows HR Operations, Finance teams, and Department Leads to execute high-volume workforce tasks with speed and zero layout bloat.
+        </p>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">⚡ High-Density UI</span>
+              <span class="badge badge-blue">UX</span>
+            </div>
+            <div class="card-body">
+              Compact table density, hairline borders, and inline modal drawers optimized for viewing 100+ records simultaneously without excessive scrolling.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🇮🇳 Indian Statutory Engine</span>
+              <span class="badge badge-emerald">Payroll</span>
+            </div>
+            <div class="card-body">
+              Built-in calculation rules for Provident Fund (EPFO 12%), Employee State Insurance (ESI), Professional Tax (PT), and TDS Income Tax Slabs.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🎯 Integrated ATS & OKRs</span>
+              <span class="badge badge-purple">Talent</span>
+            </div>
+            <div class="card-body">
+              End-to-end recruitment Kanban pipeline combined with strategic objective scorecards for quarterly employee evaluations.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Architecture & Technology Stack -->
+      <section id="architecture">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          2. Architecture & Tech Stack Specification
+        </h2>
+        <p>
+          The application follows a decoupled SPA (Single Page Application) architecture utilizing standard React hooks, memoization patterns, and modular UI component encapsulation.
+        </p>
+
+        <div class="arch-diagram">
+          <div class="arch-row">
+            <div class="arch-node primary">React 18 + Vite (SPA)</div>
+            <div class="arch-node primary">React Router v6</div>
+            <div class="arch-node primary">TypeScript 5.x</div>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-row">
+            <div class="arch-node emerald">Tailwind CSS + shadcn/ui</div>
+            <div class="arch-node emerald">Lucide React Icons</div>
+            <div class="arch-node emerald">Recharts Data Visualization</div>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-row">
+            <div class="arch-node">Mock Data Services (`/src/data`)</div>
+            <div class="arch-node">Toast Context API</div>
+            <div class="arch-node">LocalStorage Theme Provider</div>
+          </div>
+        </div>
+
+        <h3>Dependencies & Version Matrix</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Package / Tool</th>
+                <th>Version</th>
+                <th>Category</th>
+                <th>Role in TekkzyWork</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>react</code> / <code>react-dom</code></td>
+                <td>^18.3.1</td>
+                <td>Core Library</td>
+                <td>UI Rendering Engine & Fiber Reconciliation</td>
+              </tr>
+              <tr>
+                <td><code>vite</code></td>
+                <td>^5.4.2</td>
+                <td>Build Tool</td>
+                <td>Lightning-fast HMR and bundle optimizer</td>
+              </tr>
+              <tr>
+                <td><code>react-router-dom</code></td>
+                <td>^6.26.1</td>
+                <td>Routing</td>
+                <td>Declarative route handling and nested layout guards</td>
+              </tr>
+              <tr>
+                <td><code>tailwindcss</code></td>
+                <td>^3.4.10</td>
+                <td>Styling</td>
+                <td>Utility-first CSS framework with HSL design tokens</td>
+              </tr>
+              <tr>
+                <td><code>recharts</code></td>
+                <td>^2.12.7</td>
+                <td>Visualizations</td>
+                <td>Monochrome & accent analytics charts (headcount, shifts)</td>
+              </tr>
+              <tr>
+                <td><code>lucide-react</code></td>
+                <td>^0.439.0</td>
+                <td>Iconography</td>
+                <td>Consistent vector iconography across all modules</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 3: User Roles & Access Matrix -->
+      <section id="roles">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          3. User Persona & Access Control Matrix (RBAC)
+        </h2>
+        <p>
+          TekkzyWork provides granular privilege controls based on user role assignments. Roles can be simulated instantly from the Authentication Portal.
+        </p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature / Permission</th>
+                <th>Super Admin</th>
+                <th>HR Lead / Manager</th>
+                <th>Finance Officer</th>
+                <th>Staff Employee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Employee Directory Read / Write</strong></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-blue">Read Only</span></td>
+                <td><span class="badge badge-amber">Self Only</span></td>
+              </tr>
+              <tr>
+                <td><strong>Run Monthly Payroll Batch</strong></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-amber">Approval Only</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+              </tr>
+              <tr>
+                <td><strong>Approve Leave Requests</strong></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+                <td><span class="badge badge-amber">Apply Only</span></td>
+              </tr>
+              <tr>
+                <td><strong>Recruitment Candidate Kanban</strong></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+              </tr>
+              <tr>
+                <td><strong>Clock In / Out Geofence Ticker</strong></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+              </tr>
+              <tr>
+                <td><strong>Company System Settings & 2FA</strong></td>
+                <td><span class="badge badge-emerald">Full Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+                <td><span class="badge badge-purple">No Access</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 4: System Route Map -->
+      <section id="routes">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+          </svg>
+          4. Navigation & Route Hierarchy
+        </h2>
+        <p>
+          The application routes are logically grouped into public routes and dashboard layout wrapped routes.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span>Routes Definition — /src/App.tsx</span>
+            <button class="btn" style="padding: 2px 8px; font-size: 11px;" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-tsx">/                          -> Public Landing Page (Hero, Features, Pricing Calculator)
+/login                     -> SaaS Authentication Portal (Quick-fill Demo Roles)
+/dashboard                 -> Executive KPI Overview & Headcount Analytics
+/dashboard/employees       -> High-Density Directory, Filters, Onboarding Drawer
+/dashboard/attendance      -> Active Shift Ticker, Geofence Badge, Clock In/Out
+/dashboard/leave           -> Quota Cards, Leave Applications & Approval Workflow
+/dashboard/payroll         -> Salary Calculations, TDS/PF, Batch Disbursement & Payslips
+/dashboard/recruitment     -> 5-Stage ATS Pipeline Kanban & Requisitions
+/dashboard/performance     -> Corporate OKRs, Goal Progress & 360 Reviews
+/dashboard/departments     -> Organizational Divisions & Budget Allocation
+/dashboard/reports         -> Statutory Reports, Attrition Rate & Form 16 Export
+/dashboard/dev-log         -> Internal Release Changelog & Roadmap Checklist
+/dashboard/settings        -> Admin Profile, Company Legal Info, Notifications & 2FA</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 5: Core Functional Modules -->
+      <section id="modules">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+          </svg>
+          5. Detailed Functional Modules & Specifications (13 Modules)
+        </h2>
+
+        <!-- Module 1 -->
+        <details open>
+          <summary>
+            <span>Module 1: Public Marketing & Pricing Landing Page (<code>/</code>)</span>
+            <span class="badge badge-blue">Public Route</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> High-converting SaaS landing page for client acquisition and product showcase.</p>
+            <ul>
+              <li><strong>Hero Section:</strong> Engaging headline, CTAs for demo requests, and interactive live product preview mockup.</li>
+              <li><strong>Core Feature Matrix:</strong> 6 grid tiles detailing Workforce Management, Statutory Payroll, Geofencing, Talent ATS, OKRs, and Form 16 Compliance.</li>
+              <li><strong>Interactive Pricing Calculator:</strong> Real-time price calculation slider ($/₹ per employee/month) with tier options (Growth, Enterprise).</li>
+              <li><strong>Corporate Footer:</strong> Legal links, Tekkzy Cloud copyright, and status indicators.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 2 -->
+        <details>
+          <summary>
+            <span>Module 2: SaaS Authentication Portal (<code>/login</code>)</span>
+            <span class="badge badge-blue">Auth Route</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Secure authentication gateway with quick-switch demo profiles.</p>
+            <ul>
+              <li><strong>Demo Persona Quick-Fill:</strong> 1-click buttons to instantly populate credentials for <em>HR Admin (admin@tekkzy.com)</em>, <em>HR Lead</em>, and <em>Staff Employee</em>.</li>
+              <li><strong>Form Validation:</strong> Real-time email validation and password visibility toggle.</li>
+              <li><strong>Session Handling:</strong> Redirects authenticated users directly to <code>/dashboard</code>.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 3 -->
+        <details>
+          <summary>
+            <span>Module 3: Executive Analytics Dashboard (<code>/dashboard</code>)</span>
+            <span class="badge badge-emerald">Core Module</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> High-level operational overview for executive management.</p>
+            <ul>
+              <li><strong>Real-Time KPI Cards:</strong> Total Headcount, Active Today, Monthly Payroll Outflow, Pending Leave Approvals.</li>
+              <li><strong>Headcount Growth Area Chart:</strong> Monthly growth trend visualization using Recharts.</li>
+              <li><strong>Department Breakdown Pie/Bar:</strong> Headcount distribution across Engineering, Product, HR, Finance, and Sales.</li>
+              <li><strong>Weekly Attendance Trends:</strong> On-time vs Late arrivals visual analysis.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 4 -->
+        <details>
+          <summary>
+            <span>Module 4: High-Density Employee Directory (<code>/dashboard/employees</code>)</span>
+            <span class="badge badge-emerald">Core Module</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Master directory for managing complete employee lifecycles.</p>
+            <ul>
+              <li><strong>Instant Search & Multi-Filter:</strong> Filter by name, email, department, status (Active, On Leave, Offboarding), and employment type.</li>
+              <li><strong>Slide-Out Profile Drawer:</strong> View detailed personal info, emergency contacts, compensation tier, and manager reporting line.</li>
+              <li><strong>Onboarding Modal:</strong> Form trigger for adding new hires with input validations.</li>
+              <li><strong>Batch CSV Export:</strong> Export active directory data to downloadable CSV format.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 5 -->
+        <details>
+          <summary>
+            <span>Module 5: Geofenced Attendance & Live Ticker (<code>/dashboard/attendance</code>)</span>
+            <span class="badge badge-emerald">Core Module</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Real-time shift monitoring and geo-verification time tracking.</p>
+            <ul>
+              <li><strong>Active Shift Ticker:</strong> Live stopwatch showing hours and minutes logged during current shift.</li>
+              <li><strong>Clock In / Clock Out Action:</strong> Interactive status toggle with GPS geofence verification badge.</li>
+              <li><strong>Daily Logs Table:</strong> View arrival timestamp, departure timestamp, total hours, and overtime calculations.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 6 -->
+        <details>
+          <summary>
+            <span>Module 6: Leave Quota & Approval Engine (<code>/dashboard/leave</code>)</span>
+            <span class="badge badge-emerald">Core Module</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Managing leave allocations, balances, and manager workflows.</p>
+            <ul>
+              <li><strong>Quota Balance Cards:</strong> Visual progress bars for Casual Leave (CL), Sick Leave (SL), Earned Leave (EL), and Parental Leave.</li>
+              <li><strong>Leave Application Modal:</strong> Select leave category, date range, half-day/full-day toggle, and reason document upload.</li>
+              <li><strong>Manager Approval Action Strip:</strong> 1-click Approve / Reject actions with real-time balance recalculation.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 7 -->
+        <details>
+          <summary>
+            <span>Module 7: Statutory Payroll & Payslip Engine (<code>/dashboard/payroll</code>)</span>
+            <span class="badge badge-amber">Statutory Compliance</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Monthly salary calculations, tax compliance, and automated payslip generation.</p>
+            <ul>
+              <li><strong>Batch Disbursement Engine:</strong> 1-click process to trigger August 2026 payroll batch for all active employees.</li>
+              <li><strong>Deductions Breakdown:</strong> Automatic calculation of Basic, HRA, Special Allowances, PF (12%), ESI, PT, and Income Tax (TDS).</li>
+              <li><strong>Printable Payslips Modal:</strong> Downloadable, printable formal salary slip template compliant with Indian tax regulations.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 8 -->
+        <details>
+          <summary>
+            <span>Module 8: Recruitment ATS & Candidate Kanban (<code>/dashboard/recruitment</code>)</span>
+            <span class="badge badge-purple">Talent Acquisition</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Applicant tracking pipeline from requisition to hiring.</p>
+            <ul>
+              <li><strong>5-Stage Kanban Pipeline:</strong> Drag-and-drop / stage progression across <em>Applied</em>, <em>Screening</em>, <em>Interview</em>, <em>Offer</em>, and <em>Hired</em>.</li>
+              <li><strong>Candidate Profiles:</strong> Resume view, interviewer notes, technical assessment scores, and expected CTC.</li>
+              <li><strong>Requisitions Manager:</strong> Open job postings count, target hiring dates, and assigned recruiter.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 9 -->
+        <details>
+          <summary>
+            <span>Module 9: Performance Management & OKRs (<code>/dashboard/performance</code>)</span>
+            <span class="badge badge-emerald">Core Module</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Alignment of individual performance with corporate key results.</p>
+            <ul>
+              <li><strong>Company Strategic OKRs:</strong> Progress indicators for company-wide objectives (e.g., "Scale Infrastructure to 99.99% Uptime").</li>
+              <li><strong>360-Degree Review Scorecards:</strong> Self-evaluations, peer feedback ratings, and manager score metrics.</li>
+              <li><strong>Growth Track Indicators:</strong> Promotion readiness and skill matrix badges.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 10 -->
+        <details>
+          <summary>
+            <span>Module 10: Department Directory & Budgeting (<code>/dashboard/departments</code>)</span>
+            <span class="badge badge-emerald">Core Module</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Organizational structure mapping and headcount budget management.</p>
+            <ul>
+              <li><strong>Department Cards:</strong> Headcount count, Department Head assignment, total annual budget allocation.</li>
+              <li><strong>Cost Center Tracking:</strong> Utilization percentages against approved fiscal budgets.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 11 -->
+        <details>
+          <summary>
+            <span>Module 11: Enterprise Reports & Form 16 Export (<code>/dashboard/reports</code>)</span>
+            <span class="badge badge-amber">Compliance & Analytics</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Executive analytics export and statutory tax reporting.</p>
+            <ul>
+              <li><strong>Attrition Benchmarking:</strong> Quarter-over-quarter turnover analysis.</li>
+              <li><strong>Statutory Exports:</strong> EPFO ECR file export trigger, Form 16 generation, and Monthly PT statements.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 12 -->
+        <details>
+          <summary>
+            <span>Module 12: Development Log & Strategic Roadmap (<code>/dashboard/dev-log</code>)</span>
+            <span class="badge badge-blue">Internal Roadmap</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Transparent tracking of system updates and feature rollouts.</p>
+            <ul>
+              <li><strong>Changelog Timeline:</strong> Shipped milestones tagged with version numbers and date stamps.</li>
+              <li><strong>Upcoming Checklist:</strong> Planned modules (e.g., Slack Integration, Biometric Sync) with status tags.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Module 13 -->
+        <details>
+          <summary>
+            <span>Module 13: System Settings & Legal Entity Info (<code>/dashboard/settings</code>)</span>
+            <span class="badge badge-blue">Admin Configuration</span>
+          </summary>
+          <div class="details-content">
+            <p><strong>Primary Objective:</strong> Platform configuration and security settings.</p>
+            <ul>
+              <li><strong>Admin Profile:</strong> Personal details, avatar upload, and email preferences.</li>
+              <li><strong>Company Legal Information:</strong> CIN, GSTIN, PAN, and registered corporate address details.</li>
+              <li><strong>Security & 2FA:</strong> Password changes, active sessions list, and Two-Factor Authentication toggle.</li>
+            </ul>
+          </div>
+        </details>
+
+      </section>
+
+      <!-- Section 6: Data Schemas -->
+      <section id="schemas">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+          </svg>
+          6. Core Data Schemas & TypeScript Definitions
+        </h2>
+        <p>
+          Below are the core domain interfaces used throughout the TekkzyWork codebase.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span>Employee Interface — /src/data/mockEmployees.ts</span>
+            <button class="btn" style="padding: 2px 8px; font-size: 11px;" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-typescript">export interface Employee {
+  id: string;
+  employeeCode: string; // E.g., "TK-1042"
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  department: string;
+  designation: string;
+  joiningDate: string; // ISO format
+  employmentType: "Full-Time" | "Contract" | "Intern";
+  status: "Active" | "On Leave" | "Terminated";
+  location: string;
+  manager: string;
+  ctc: number; // Annual CTC in INR
+  avatarUrl?: string;
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span>Payroll Record Interface — /src/data/mockPayroll.ts</span>
+            <button class="btn" style="padding: 2px 8px; font-size: 11px;" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-typescript">export interface PayrollRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  designation: string;
+  month: string; // "August 2026"
+  basicSalary: number;
+  hra: number;
+  allowances: number;
+  grossEarnings: number;
+  pfDeduction: number;   // 12% of Basic
+  tdsDeduction: number;  // Income Tax Slabs
+  ptDeduction: number;   // Professional Tax (Fixed standard)
+  totalDeductions: number;
+  netPay: number;
+  status: "Processed" | "Pending" | "On Hold";
+  disbursedDate?: string;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Statutory Compliance Rules -->
+      <section id="statutory">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          7. Statutory Payroll Calculation Rules (Indian Labor Law)
+        </h2>
+        <p>
+          TekkzyWork enforces standard Indian statutory payroll formulas within the calculation engine:
+        </p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Statutory Formula / Rule</th>
+                <th>Standard Capping Limit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Provident Fund (EPFO)</strong></td>
+                <td>12% of (Basic Salary) for Employee contribution</td>
+                <td>Capped at ₹1,800/month (if Basic > ₹15,000) unless voluntary option checked</td>
+              </tr>
+              <tr>
+                <td><strong>House Rent Allowance (HRA)</strong></td>
+                <td>Minimum of: (a) Actual HRA, (b) 50% Basic (Metro), (c) Rent paid - 10% Basic</td>
+                <td>Subject to Rent Receipts submission</td>
+              </tr>
+              <tr>
+                <td><strong>Professional Tax (PT)</strong></td>
+                <td>Slab-based state tax (e.g., Karnataka/Maharashtra)</td>
+                <td>Max ₹200/month (₹300 in Feb)</td>
+              </tr>
+              <tr>
+                <td><strong>Income Tax Withholding (TDS)</strong></td>
+                <td>Calculated under New Tax Regime slabs (Section 115BAC)</td>
+                <td>Standard Deduction of ₹75,000 applied annually</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 8: Deployment Guide -->
+      <section id="deployment">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+          </svg>
+          8. Setup, Installation & Build Guide
+        </h2>
+        <p>
+          Follow these instructions to run the application locally or create a production distribution.
+        </p>
+
+        <h3>Prerequisites</h3>
+        <ul>
+          <li>Node.js v18.0.0 or higher installed</li>
+          <li>npm v9.0.0 or yarn/pnpm equivalent</li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span>Terminal Shell Commands</span>
+            <button class="btn" style="padding: 2px 8px; font-size: 11px;" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-bash"># 1. Clone repository
+git clone https://github.com/Intelligent-Cloud-Applications/HR-Management.git
+cd HR-Management
+
+# 2. Install dependencies
+npm install
+
+# 3. Start local development server (with Vite HMR)
+npm run dev
+
+# 4. Create production build bundle
+npm run build
+
+# 5. Preview production build locally
+npm run preview</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 9: FAQ & Troubleshooting -->
+      <section id="faq">
+        <h2>
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          9. Troubleshooting & FAQ
+        </h2>
+
+        <details>
+          <summary>How do I reset or switch demo roles during testing?</summary>
+          <div class="details-content">
+            Navigate to <code>/login</code> or click the Profile Avatar in the top navbar and select "Switch Role". Select between HR Admin, HR Lead, and Employee to test privilege guards.
+          </div>
+        </details>
+
+        <details>
+          <summary>Why are payslip print dialogs not showing background styles?</summary>
+          <div class="details-content">
+            In your browser's Print Dialog, ensure the checkbox <strong>"Background Graphics"</strong> is enabled under More Settings.
+          </div>
+        </details>
+
+        <details>
+          <summary>How is dark mode persisted across sessions?</summary>
+          <div class="details-content">
+            The theme selection (`light` | `dark` | `system`) is automatically saved to the browser's <code>localStorage.setItem('tekkzy_theme', ...)</code>.
+          </div>
+        </details>
+      </section>
+
+      <!-- Document Footer -->
+      <footer style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 60px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 12px;">
+        <div>© 2026 Tekkzy Intelligent Cloud Applications Pvt. Ltd. All rights reserved.</div>
+        <div>TekkzyWork Documentation Portal</div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-notification">
+    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toast-message">Snippet copied to clipboard!</span>
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    // Search Functionality
+    const searchInput = document.getElementById('docSearchInput');
+    const sections = document.querySelectorAll('main section, main details');
+
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase().trim();
+      
+      sections.forEach(sec => {
+        const text = sec.innerText.toLowerCase();
+        if (term === '' || text.includes(term)) {
+          sec.style.display = '';
+          if (sec.tagName === 'DETAILS' && term !== '') {
+            sec.open = true;
+          }
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+    });
+
+    // Keyboard shortcut Ctrl+K
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+      }
+    });
+
+    // Dark/Light Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        localStorage.setItem('tekkzy_doc_theme', 'light');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        localStorage.setItem('tekkzy_doc_theme', 'dark');
+      }
+    }
+
+    // Restore saved theme
+    const savedTheme = localStorage.getItem('tekkzy_doc_theme');
+    if (savedTheme) {
+      document.documentElement.className = savedTheme;
+    }
+
+    // Scrollspy for Sidebar TOC
+    const navLinks = document.querySelectorAll('.toc-item');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      const sectionElements = document.querySelectorAll('section[id], div[id]');
+      
+      sectionElements.forEach(section => {
+        const sectionTop = section.offsetTop - 120;
+        if (pageYOffset >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(item => {
+        item.classList.remove('active');
+        const href = item.querySelector('a').getAttribute('href').substring(1);
+        if (href === current) {
+          item.classList.add('active');
+        }
+      });
+    });
+
+    // Copy Code Snippets
+    function copyCode(btn) {
+      const codeBlock = btn.closest('.code-block').querySelector('code');
+      const text = codeBlock.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Code snippet copied to clipboard!');
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
