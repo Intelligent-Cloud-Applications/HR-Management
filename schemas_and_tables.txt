@@ -1,0 +1,190 @@
+TEKKZYWORK HR MANAGEMENT SYSTEM - DATABASE SCHEMAS & TABLES
+
+Below is a consolidated list of the schemas and suggested database table names required for the application based on the existing frontend data structures (extracted from src/data).
+
+---
+1. Table Name: `Employees`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- employeeCode (string, Unique)
+- name (string)
+- role (string)
+- department (string)
+- email (string, Unique)
+- phone (string)
+- location (string)
+- status (enum: "Active" | "On Leave" | "Inactive")
+- joiningDate (date/string)
+- salary (number)
+- avatar (string/URL)
+- rating (number)
+- manager (string)
+- emergencyContactName (string)
+- emergencyContactRelation (string)
+- emergencyContactPhone (string)
+- skills (array of strings / JSON)
+- bankAccount (string)
+- panNumber (string)
+
+---
+2. Table Name: `AttendanceRecords`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- employeeId (string, FK to Employees)
+- employeeName (string)
+- avatar (string/URL)
+- department (string)
+- date (date/string)
+- checkIn (time/string)
+- checkOut (time/string)
+- workHours (string)
+- status (enum: "Present" | "Late" | "WFH" | "Absent" | "Half Day")
+
+---
+3. Table Name: `Departments`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- name (string)
+- code (string, Unique)
+- head (string)
+- headAvatar (string/URL)
+- headRole (string)
+- employeeCount (number)
+- annualBudget (number)
+- openRoles (number)
+- description (string)
+- accentColor (string)
+- activeProjects (number)
+
+---
+4. Table Name: `LeaveRequests`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- employeeId (string, FK to Employees)
+- employeeName (string)
+- avatar (string/URL)
+- department (string)
+- leaveType (enum: "Sick Leave" | "Casual Leave" | "Earned Leave" | "Maternity/Paternity")
+- startDate (date/string)
+- endDate (date/string)
+- days (number)
+- reason (text)
+- status (enum: "Pending" | "Approved" | "Rejected")
+- appliedOn (date/string)
+
+---
+5. Table Name: `LeaveBalances`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- employeeId (string, FK to Employees) -- Required for Database relation
+- type (string)
+- allocated (number)
+- used (number)
+- remaining (number)
+- color (string)
+
+---
+6. Table Name: `PayrollRecords`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- employeeId (string, FK to Employees)
+- employeeName (string)
+- role (string)
+- department (string)
+- avatar (string/URL)
+- month (string)
+- baseSalary (number)
+- hra (number)
+- specialAllowance (number)
+- providentFund (number)
+- taxDeduction (number)
+- bonus (number)
+- netSalary (number)
+- status (enum: "Processed" | "Pending" | "On Hold")
+- paymentMethod (string)
+- disbursedDate (date/string)
+
+---
+7. Table Name: `PerformanceReviews`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- employeeId (string, FK to Employees)
+- employeeName (string)
+- avatar (string/URL)
+- role (string)
+- department (string)
+- rating (number)
+- reviewCycle (string)
+- reviewer (string)
+- feedback (text)
+- goalsCompletion (number)
+- status (enum: "Completed" | "Pending Employee Signoff" | "Scheduled")
+
+---
+8. Table Name: `OKRGoals`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- title (string)
+- category (enum: "Engineering" | "Company" | "Sales" | "Operations")
+- owner (string)
+- ownerAvatar (string/URL)
+- progress (number)
+- targetDate (date/string)
+- status (enum: "On Track" | "At Risk" | "Ahead")
+
+---
+9. Table Name: `JobOpenings`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- title (string)
+- department (string)
+- location (string)
+- type (enum: "Full-Time" | "Remote" | "Hybrid")
+- experience (string)
+- applicantsCount (number)
+- status (enum: "Active" | "Closed" | "Draft")
+- postedDate (date/string)
+- salaryRange (string)
+
+---
+10. Table Name: `Candidates`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- name (string)
+- role (string)
+- department (string)
+- stage (enum: "Applied" | "Screening" | "Interview" | "Offer" | "Hired" | "Rejected")
+- appliedDate (date/string)
+- email (string)
+- phone (string)
+- experienceYears (number)
+- expectedSalary (string)
+- rating (number)
+- avatar (string/URL)
+- resumeUrl (string/URL)
+
+---
+11. Table Name: `DevLogItems`
+Schema / Structure:
+- institutionId (string, Primary Key)
+- cognitoId (string, Sort Key)
+- title (string)
+- description (text)
+- category (enum: "Core Architecture" | "UI & Theming" | "Employee Management" | "Payroll & Tax" | "ATS & Recruitment" | "Security & Auth")
+- version (string)
+- dateCompleted (date/string)
+- targetQuarter (string)
+- priority (enum: "High" | "Medium" | "Low" | "Critical")
+- status (enum: "completed" | "in-progress" | "planned")
+- author (string)
+- tags (array of strings / JSON)
