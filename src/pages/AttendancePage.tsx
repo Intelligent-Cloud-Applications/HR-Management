@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { ATTENDANCE_STATS, RECENT_ATTENDANCE_LOGS, AttendanceRecord } from "@/data/mockAttendance"
+import { ATTENDANCE_STATS, RECENT_ATTENDANCE_LOGS, getMyAttendanceLogs } from "@/data/mockAttendance"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Card } from "@/components/ui/Card"
 import { StatCard } from "@/components/ui/StatCard"
@@ -16,6 +16,8 @@ import {
   TableCell,
 } from "@/components/ui/Table"
 import { useToast } from "@/lib/toast"
+import { getRole, getSelfIdentity } from "@/lib/session"
+import { isEmployeeRole } from "@/lib/roles"
 import {
   Clock,
   CalendarCheck,
@@ -29,7 +31,10 @@ import {
 } from "lucide-react"
 
 export const AttendancePage: React.FC = () => {
-  const [logs, setLogs] = useState<AttendanceRecord[]>(RECENT_ATTENDANCE_LOGS)
+  const role = getRole()
+  const self = getSelfIdentity()
+  const isSelf = isEmployeeRole(role)
+  const logs = isSelf ? getMyAttendanceLogs(self.name, self.department) : RECENT_ATTENDANCE_LOGS
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -93,19 +98,27 @@ export const AttendancePage: React.FC = () => {
     })
   }
 
+  const presentDays = logs.filter((log) => log.status === "Present" || log.status === "WFH").length
+  const lateDays = logs.filter((log) => log.status === "Late").length
+  const wfhDays = logs.filter((log) => log.status === "WFH").length
+
   return (
     <div className="space-y-4 font-sans">
       <PageHeader
-        title="Attendance"
-        description="Shift tracking, geofence punch logs, and time records."
+        title={isSelf ? "My attendance" : "Attendance"}
+        description={
+          isSelf
+            ? "Your punches, hours, and shift history."
+            : "Shift tracking, geofence punch logs, and time records."
+        }
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Attendance" },
+          { label: isSelf ? "My attendance" : "Attendance" },
         ]}
         actions={
           <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-1.5">
             <Download className="w-3.5 h-3.5" />
-            Export Log
+            {isSelf ? "Export my log" : "Export Log"}
           </Button>
         }
       />
@@ -155,38 +168,70 @@ export const AttendancePage: React.FC = () => {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard
-          title="Attendance Rate"
-          value={ATTENDANCE_STATS.presentRate}
-          icon={<CalendarCheck className="w-4 h-4" />}
-          trend={{ value: "+2.1%", isPositive: true, label: "this week" }}
-        />
+        {isSelf ? (
+          <>
+            <StatCard
+              title="Days present"
+              value={String(presentDays)}
+              icon={<CalendarCheck className="w-4 h-4" />}
+              description="In your recent log"
+            />
+            <StatCard
+              title="Late arrivals"
+              value={String(lateDays)}
+              icon={<AlertTriangle className="w-4 h-4" />}
+              description="Grace may still apply"
+            />
+            <StatCard
+              title="WFH days"
+              value={String(wfhDays)}
+              icon={<Home className="w-4 h-4" />}
+              description="On your record"
+            />
+            <StatCard
+              title="Latest hours"
+              value={logs[0]?.workHours || "—"}
+              icon={<UserCheck className="w-4 h-4" />}
+              description={logs[0]?.date || "No punches yet"}
+            />
+          </>
+        ) : (
+          <>
+            <StatCard
+              title="Attendance Rate"
+              value={ATTENDANCE_STATS.presentRate}
+              icon={<CalendarCheck className="w-4 h-4" />}
+              trend={{ value: "+2.1%", isPositive: true, label: "this week" }}
+            />
 
-        <StatCard
-          title="Present Today"
-          value={ATTENDANCE_STATS.presentCount}
-          icon={<UserCheck className="w-4 h-4" />}
-          description={`${ATTENDANCE_STATS.onTimeCount} on time`}
-        />
+            <StatCard
+              title="Present Today"
+              value={ATTENDANCE_STATS.presentCount}
+              icon={<UserCheck className="w-4 h-4" />}
+              description={`${ATTENDANCE_STATS.onTimeCount} on time`}
+            />
 
-        <StatCard
-          title="Late Arrivals"
-          value={ATTENDANCE_STATS.lateArrivals}
-          icon={<AlertTriangle className="w-4 h-4" />}
-          description="Grace applied"
-        />
+            <StatCard
+              title="Late Arrivals"
+              value={ATTENDANCE_STATS.lateArrivals}
+              icon={<AlertTriangle className="w-4 h-4" />}
+              description="Grace applied"
+            />
 
-        <StatCard
-          title="Remote (WFH)"
-          value={ATTENDANCE_STATS.wfhCount}
-          icon={<Home className="w-4 h-4" />}
-          description="Approved"
-        />
+            <StatCard
+              title="Remote (WFH)"
+              value={ATTENDANCE_STATS.wfhCount}
+              icon={<Home className="w-4 h-4" />}
+              description="Approved"
+            />
+          </>
+        )}
       </div>
 
       {/* Daily Attendance Logs */}
       <Card className="p-3.5 space-y-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          {!isSelf && (
           <div className="w-full sm:w-64">
             <Input
               placeholder="Search staff or department..."
@@ -195,6 +240,10 @@ export const AttendancePage: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          )}
+          {isSelf && (
+            <span className="text-xs font-semibold text-foreground w-full">My punch history</span>
+          )}
 
           <div className="w-full sm:w-36">
             <Select
@@ -214,8 +263,8 @@ export const AttendancePage: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Employee</TableHead>
-              <TableHead>Department</TableHead>
+              {!isSelf && <TableHead>Employee</TableHead>}
+              {!isSelf && <TableHead>Department</TableHead>}
               <TableHead>Date</TableHead>
               <TableHead>Check-In</TableHead>
               <TableHead>Check-Out</TableHead>
@@ -226,10 +275,14 @@ export const AttendancePage: React.FC = () => {
           <TableBody>
             {filteredLogs.map((log) => (
               <TableRow key={log.id}>
-                <TableCell className="font-medium text-foreground">
-                  {log.employeeName}
-                </TableCell>
-                <TableCell className="text-muted-foreground">{log.department}</TableCell>
+                {!isSelf && (
+                  <TableCell className="font-medium text-foreground">
+                    {log.employeeName}
+                  </TableCell>
+                )}
+                {!isSelf && (
+                  <TableCell className="text-muted-foreground">{log.department}</TableCell>
+                )}
                 <TableCell className="text-muted-foreground font-mono text-[11px]">{log.date}</TableCell>
                 <TableCell className="font-mono text-foreground">{log.checkIn}</TableCell>
                 <TableCell className="font-mono text-muted-foreground">{log.checkOut}</TableCell>

@@ -1,0 +1,122 @@
+TekkzyWork — current process (what is working)
+
+Updated: 15 Sep 2026
+
+
+1) How to run it
+----------------
+Frontend (Vite, local):
+  npm run dev
+  App: http://localhost:5173
+
+Backend (already deployed, AWS us-east-2):
+  API: https://8btzzqxb5l.execute-api.us-east-2.amazonaws.com
+  Cognito pool: us-east-2_eHG9pgagv
+
+Frontend reads VITE_API_URL from .env.local.
+
+
+2) Demo logins (password: Password@123)
+---------------------------------------
+  admin@tekkzy.com     SUPER_ADMIN
+  hr@tekkzy.com        HR_LEAD
+  finance@tekkzy.com   FINANCE
+  manager@tekkzy.com   MANAGER
+  employee@tekkzy.com  EMPLOYEE  (Rohan Varma)
+
+Login is real Cognito. Failed login shows an error. There is no silent demo fallback.
+
+
+3) What works end-to-end (live API)
+-----------------------------------
+- Sign in with Cognito. Invitation users get NEW_PASSWORD_REQUIRED, then continue.
+- Session is stored in localStorage with the role from the JWT.
+- Dashboard is gated: no session -> /login. Wrong role for a URL -> back to /dashboard.
+- Sidebar, search, and buttons only show sections that role is allowed to use.
+
+HR / Super Admin employee flow:
+- Open Employees (live list from DynamoDB).
+- Add Employee page (/dashboard/employees/new) — centered form, Yes/No for invite email.
+- Create employee = Cognito user + role group + invite email (unless login is disabled).
+- View employee drawer, deactivate, resend invite (HR / Super Admin only).
+- Finance and Manager can read the directory, not add or deactivate.
+- Payroll PII in the drawer is hidden unless the role can see payroll.
+
+New hire flow:
+- HR adds the person -> Cognito invite email.
+- Employee signs in, sets a new password.
+- Employee opens My Profile, edits personal / emergency details, then verifies.
+- /me and /me/verify talk to the live backend.
+
+
+4) Role screens (what each person sees)
+---------------------------------------
+Super Admin: everything, including Settings and Dev Log.
+
+HR Lead: employees (add/edit), leave, payroll, recruitment, performance,
+departments, reports. No company settings.
+
+Finance: employees (read), payroll, reports. No leave, recruitment, or settings.
+
+Manager: employees (read), leave (approve), performance, departments.
+No payroll or recruitment.
+
+Employee (self-service, not company-wide HR):
+  Dashboard          reminders, quick links, IN/OUT punch status
+  My Pay             own salary, PF, TDS, payslips
+  Attendance         clock in/out and own punch history
+  Reimbursements     submit and track claims
+  Tax Deductions     IT declaration / investment proofs
+  Documents          payslips, Form 16, appointment letter
+  My Leave           own balances and applications (apply only)
+  My Profile         job record + personal details
+  My Tasks           assigned items
+  Help               FAQs and HR/payroll contacts
+
+Direct URLs for hidden modules are blocked (example: employee cannot open /dashboard/payroll).
+
+
+5) What is UI / mock only (not live API yet)
+--------------------------------------------
+These pages work in the product UI but still use local mock data:
+- Attendance punches and history
+- Leave apply / approve
+- Company payroll batch
+- Recruitment, performance, departments, reports
+- Employee My Pay, reimbursements, tax, documents, tasks
+
+They are useful for demos. They do not persist to DynamoDB yet.
+
+
+6) Backend pieces that are live
+-------------------------------
+Tables (prefix beta_hr_management_*):
+  employees, employee_personal, employee_payroll, employee_documents,
+  employee_emergency_contacts, employee_access
+
+Also: S3 for documents, Cognito groups SUPER_ADMIN / HR_LEAD / FINANCE /
+MANAGER / EMPLOYEE. Payroll fields are encrypted at rest (AES-256-GCM).
+
+Useful APIs:
+  POST /auth/login
+  POST /auth/respond-new-password
+  CRUD /employees
+  nested personal / payroll / documents / emergency / access
+  GET /me   PUT /me   POST /me/verify
+  resend invite
+
+
+7) Practical test path
+----------------------
+1. Log in as hr@tekkzy.com.
+2. Confirm Employees, Add Employee, Payroll, Recruitment are in the sidebar.
+3. Add a person with Send invitation = Yes.
+4. Log out, log in as that person, set password, verify profile.
+5. Log in as employee@tekkzy.com.
+6. Confirm only self-service items (My Pay, Attendance, Reimbursements, Tax,
+   Documents, Leave, Profile, Tasks, Help). Confirm payroll/recruitment URLs bounce back.
+
+
+That is the current working process: live auth + live employee records, role-based
+dashboards, and employee self-service screens ready for demo. Attendance, leave,
+and payroll money flows still need backend wiring next.

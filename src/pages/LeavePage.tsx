@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, LeaveRequest, LeaveBalance } from "@/data/mockLeaves"
+import { INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, LeaveRequest, LeaveBalance, getMyLeaveHistory } from "@/data/mockLeaves"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Card } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
@@ -16,6 +16,8 @@ import {
   TableCell,
 } from "@/components/ui/Table"
 import { useToast } from "@/lib/toast"
+import { getRole, getSelfIdentity } from "@/lib/session"
+import { canApproveLeave, isEmployeeRole } from "@/lib/roles"
 import {
   PlusCircle,
   Check,
@@ -23,6 +25,10 @@ import {
 } from "lucide-react"
 
 export const LeavePage: React.FC = () => {
+  const role = getRole()
+  const self = getSelfIdentity()
+  const isSelf = isEmployeeRole(role)
+  const canApprove = canApproveLeave(role)
   const [requests, setRequests] = useState<LeaveRequest[]>(INITIAL_LEAVE_REQUESTS)
   const [balances, setBalances] = useState<LeaveBalance[]>(INITIAL_LEAVE_BALANCES)
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
@@ -59,10 +65,10 @@ export const LeavePage: React.FC = () => {
     e.preventDefault()
     const newReq: LeaveRequest = {
       id: `lv-${Date.now()}`,
-      employeeId: "emp-1",
-      employeeName: "Aarav Sharma",
+      employeeId: self.employee?._id || "self",
+      employeeName: self.name,
       avatar: "",
-      department: "Engineering",
+      department: self.department,
       leaveType,
       startDate,
       endDate,
@@ -91,14 +97,20 @@ export const LeavePage: React.FC = () => {
     })
   }
 
+  const visibleRequests = isSelf ? getMyLeaveHistory(self.name, requests) : requests
+
   return (
     <div className="space-y-4 font-sans">
       <PageHeader
-        title="Leave Management"
-        description="Leave quotas, approval workflow, and absence tracking."
+        title={isSelf ? "My leave" : "Leave Management"}
+        description={
+          isSelf
+            ? "Your leave balances and application history."
+            : "Leave quotas, approval workflow, and absence tracking."
+        }
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Leave" },
+          { label: isSelf ? "My leave" : "Leave" },
         ]}
         actions={
           <Button variant="default" size="sm" onClick={() => setIsApplyModalOpen(true)} className="gap-1.5">
@@ -132,30 +144,35 @@ export const LeavePage: React.FC = () => {
       {/* Requests Table */}
       <Card className="p-3.5 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-foreground">Leave Requests</span>
+          <span className="text-xs font-semibold text-foreground">
+            {isSelf ? "My leave history" : "Leave Requests"}
+          </span>
           <span className="text-[11px] font-mono text-muted-foreground">
-            {requests.filter((r) => r.status === "Pending").length} Pending
+            {visibleRequests.filter((r) => r.status === "Pending").length} Pending
           </span>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Employee</TableHead>
+              {!isSelf && <TableHead>Employee</TableHead>}
               <TableHead>Type</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Reason</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead className="text-right">{canApprove ? "Action" : "Applied"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {requests.map((req) => (
+            {visibleRequests.length > 0 ? (
+              visibleRequests.map((req) => (
               <TableRow key={req.id}>
+                {!isSelf && (
                 <TableCell>
                   <span className="font-medium text-foreground block">{req.employeeName}</span>
                   <span className="text-[11px] text-muted-foreground">{req.department} • Applied {req.appliedOn}</span>
                 </TableCell>
+                )}
 
                 <TableCell className="text-muted-foreground text-xs">{req.leaveType}</TableCell>
 
@@ -183,7 +200,7 @@ export const LeavePage: React.FC = () => {
                 </TableCell>
 
                 <TableCell className="text-right">
-                  {req.status === "Pending" ? (
+                  {canApprove && req.status === "Pending" ? (
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="default"
@@ -203,11 +220,20 @@ export const LeavePage: React.FC = () => {
                       </Button>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-muted-foreground font-mono">Completed</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      {isSelf ? req.appliedOn : "Completed"}
+                    </span>
                   )}
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={isSelf ? 5 : 6} className="text-center py-8 text-muted-foreground">
+                  No leave history yet. Apply leave to start a record.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Card>

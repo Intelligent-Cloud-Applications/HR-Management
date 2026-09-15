@@ -1,12 +1,17 @@
-import React, { useState } from "react"
-import { Outlet } from "react-router-dom"
+import React from "react"
+import { Navigate, Outlet } from "react-router-dom"
 import { DashboardSidebar } from "./DashboardSidebar"
 import { DashboardTopNav } from "./DashboardTopNav"
 import { cn } from "@/lib/utils"
+import { getSession } from "@/lib/session"
 
 export const DashboardLayout: React.FC = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false)
+
+  if (!getSession()) {
+    return <Navigate to="/login" replace />
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">

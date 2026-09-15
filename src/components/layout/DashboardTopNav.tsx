@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Search, Bell, Menu, Check, User, Settings, LogOut, Building, Shield } from "lucide-react"
+import { Search, Bell, Menu, Check, User, LogOut, Building } from "lucide-react"
 import { ThemeToggle } from "./ThemeToggle"
 import { Button } from "@/components/ui/Button"
 import { Modal } from "@/components/ui/Modal"
 import { useToast } from "@/lib/toast"
+import { clearSession, getRole, getSession } from "@/lib/session"
+import { ROLE_LABELS, canAccess, pathToSection } from "@/lib/roles"
 
 interface TopNavProps {
   onOpenMobileMenu: () => void
@@ -24,6 +26,18 @@ export const DashboardTopNav: React.FC<TopNavProps> = ({ onOpenMobileMenu }) => 
   const [profileOpen, setProfileOpen] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
+  const session = getSession()
+  const role = getRole()
+  const displayName = session?.employee
+    ? `${session.employee.first_name} ${session.employee.last_name}`
+    : session?.email || "Signed in"
+  const displayEmail = session?.employee?.work_email || session?.email || ""
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("") || "TW"
 
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: "1", title: "Devendra Patel applied for 3 days Sick Leave", time: "10m ago", read: false },
@@ -55,8 +69,16 @@ export const DashboardTopNav: React.FC<TopNavProps> = ({ onOpenMobileMenu }) => 
   const searchablePages = [
     { title: "Dashboard Overview", path: "/dashboard", category: "Core" },
     { title: "Employee Directory", path: "/dashboard/employees", category: "Staff" },
-    { title: "Attendance & Clock-In", path: "/dashboard/attendance", category: "Time" },
-    { title: "Leave Approvals", path: "/dashboard/leave", category: "Requests" },
+    { title: "Add Employee", path: "/dashboard/employees/new", category: "Staff" },
+    { title: role === "EMPLOYEE" ? "My Profile" : "Verify Profile", path: "/dashboard/verify-profile", category: "Staff" },
+    { title: role === "EMPLOYEE" ? "My Attendance" : "Attendance & Clock-In", path: "/dashboard/attendance", category: "Time" },
+    { title: role === "EMPLOYEE" ? "My Leave History" : "Leave Approvals", path: "/dashboard/leave", category: "Requests" },
+    { title: "My Tasks", path: "/dashboard/tasks", category: "Staff" },
+    { title: "My Pay", path: "/dashboard/pay", category: "Pay" },
+    { title: "Reimbursements", path: "/dashboard/reimbursements", category: "Pay" },
+    { title: "Tax Deductions", path: "/dashboard/tax", category: "Pay" },
+    { title: "Documents", path: "/dashboard/documents", category: "Pay" },
+    { title: "Help", path: "/dashboard/help", category: "Pay" },
     { title: "Payroll & Payslips", path: "/dashboard/payroll", category: "Finance" },
     { title: "Recruitment Kanban", path: "/dashboard/recruitment", category: "Talent" },
     { title: "Performance Reviews & OKRs", path: "/dashboard/performance", category: "HR" },
@@ -64,7 +86,7 @@ export const DashboardTopNav: React.FC<TopNavProps> = ({ onOpenMobileMenu }) => 
     { title: "Analytics & Reports", path: "/dashboard/reports", category: "Reports" },
     { title: "Development Log", path: "/dashboard/dev-log", category: "Dev" },
     { title: "Settings", path: "/dashboard/settings", category: "Config" },
-  ]
+  ].filter((page) => canAccess(role, pathToSection(page.path)))
 
   const filteredPages = searchablePages.filter((p) =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -172,40 +194,48 @@ export const DashboardTopNav: React.FC<TopNavProps> = ({ onOpenMobileMenu }) => 
               className="flex items-center gap-1.5 p-1 rounded hover:bg-muted transition-colors focus:outline-none"
             >
               <div className="w-6 h-6 rounded bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
-                AS
+                {initials}
               </div>
             </button>
 
             {profileOpen && (
               <div className="absolute right-0 mt-1.5 w-48 rounded-md border border-border bg-card shadow-lg z-50 p-1 text-xs">
                 <div className="p-2 border-b border-border mb-1">
-                  <p className="font-semibold text-foreground">Aarav Sharma</p>
-                  <p className="text-muted-foreground text-[10px]">aarav.sharma@tekkzy.com</p>
+                  <p className="font-semibold text-foreground">{displayName}</p>
+                  <p className="text-muted-foreground text-[10px]">{displayEmail}</p>
+                  {role && (
+                    <p className="text-muted-foreground text-[10px] mt-0.5">{ROLE_LABELS[role]}</p>
+                  )}
                 </div>
 
                 <div className="space-y-0.5">
                   <Link
-                    to="/dashboard/settings"
+                    to="/dashboard/verify-profile"
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted text-foreground"
                   >
                     <User className="w-3.5 h-3.5 text-muted-foreground" />
                     <span>Profile</span>
                   </Link>
-                  <Link
-                    to="/dashboard/settings"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted text-foreground"
-                  >
-                    <Building className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span>Company Details</span>
-                  </Link>
+                  {canAccess(role, "settings") && (
+                    <Link
+                      to="/dashboard/settings"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted text-foreground"
+                    >
+                      <Building className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>Company Details</span>
+                    </Link>
+                  )}
                 </div>
 
                 <div className="pt-1 mt-1 border-t border-border">
                   <Link
                     to="/login"
-                    onClick={() => setProfileOpen(false)}
+                    onClick={() => {
+                      setProfileOpen(false)
+                      clearSession()
+                    }}
                     className="flex items-center gap-2 px-2 py-1.5 rounded text-destructive hover:bg-destructive/10 font-medium"
                   >
                     <LogOut className="w-3.5 h-3.5" />

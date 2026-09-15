@@ -4,6 +4,7 @@ import { Logo } from "@/components/brand/Logo"
 import {
   LayoutDashboard,
   Users,
+  UserCheck,
   CalendarCheck,
   CalendarDays,
   CreditCard,
@@ -12,13 +13,21 @@ import {
   Building2,
   BarChart3,
   FileCode2,
+  ListTodo,
   Settings,
+  Wallet,
+  Receipt,
+  Percent,
+  FileText,
+  HelpCircle,
   ChevronLeft,
   ChevronRight,
   LogOut,
   ExternalLink
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { clearSession, getRole, getSession } from "@/lib/session"
+import { ROLE_LABELS, canAccess } from "@/lib/roles"
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -34,20 +43,50 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
   setIsMobileOpen,
 }) => {
   const location = useLocation()
+  const session = getSession()
+  const role = getRole()
+  const displayName = session?.employee
+    ? `${session.employee.first_name} ${session.employee.last_name}`
+    : session?.email || "Signed in"
+  const displayRole = role ? ROLE_LABELS[role] : "TekkzyWork"
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("") || "TW"
 
-  const navItems = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true },
-    { label: "Employees", href: "/dashboard/employees", icon: Users },
-    { label: "Attendance", href: "/dashboard/attendance", icon: CalendarCheck },
-    { label: "Leave Management", href: "/dashboard/leave", icon: CalendarDays, badge: "2" },
-    { label: "Payroll", href: "/dashboard/payroll", icon: CreditCard },
-    { label: "Recruitment", href: "/dashboard/recruitment", icon: Briefcase },
-    { label: "Performance", href: "/dashboard/performance", icon: Award },
-    { label: "Departments", href: "/dashboard/departments", icon: Building2 },
-    { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
-    { label: "Dev Log", href: "/dashboard/dev-log", icon: FileCode2 },
-    { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  const adminNavItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true, section: "dashboard" },
+    { label: "Employees", href: "/dashboard/employees", icon: Users, section: "employees" },
+    { label: "Verify Profile", href: "/dashboard/verify-profile", icon: UserCheck, section: "verify-profile" },
+    { label: "Attendance", href: "/dashboard/attendance", icon: CalendarCheck, section: "attendance" },
+    { label: "Leave Management", href: "/dashboard/leave", icon: CalendarDays, badge: "2", section: "leave" },
+    { label: "Payroll", href: "/dashboard/payroll", icon: CreditCard, section: "payroll" },
+    { label: "Recruitment", href: "/dashboard/recruitment", icon: Briefcase, section: "recruitment" },
+    { label: "Performance", href: "/dashboard/performance", icon: Award, section: "performance" },
+    { label: "Departments", href: "/dashboard/departments", icon: Building2, section: "departments" },
+    { label: "Reports", href: "/dashboard/reports", icon: BarChart3, section: "reports" },
+    { label: "Dev Log", href: "/dashboard/dev-log", icon: FileCode2, section: "dev-log" },
+    { label: "Settings", href: "/dashboard/settings", icon: Settings, section: "settings" },
   ]
+
+  const employeeNavItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true, section: "dashboard" },
+    { label: "My Pay", href: "/dashboard/pay", icon: Wallet, section: "pay" },
+    { label: "Attendance", href: "/dashboard/attendance", icon: CalendarCheck, section: "attendance" },
+    { label: "Reimbursements", href: "/dashboard/reimbursements", icon: Receipt, section: "reimbursements" },
+    { label: "Tax Deductions", href: "/dashboard/tax", icon: Percent, section: "tax" },
+    { label: "Documents", href: "/dashboard/documents", icon: FileText, section: "documents" },
+    { label: "My Leave", href: "/dashboard/leave", icon: CalendarDays, section: "leave" },
+    { label: "My Profile", href: "/dashboard/verify-profile", icon: UserCheck, section: "verify-profile" },
+    { label: "My Tasks", href: "/dashboard/tasks", icon: ListTodo, section: "tasks" },
+    { label: "Help", href: "/dashboard/help", icon: HelpCircle, section: "help" },
+  ]
+
+  const navItems = (role === "EMPLOYEE" ? employeeNavItems : adminNavItems).filter((item) =>
+    canAccess(role, item.section)
+  )
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#161616] text-[#F5F5F5] border-r border-[#262626] select-none font-sans">
@@ -133,17 +172,22 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
             isCollapsed && "justify-center p-1.5"
           )}
         >
-          <div className="w-7 h-7 rounded bg-[#2563EB]/25 text-[#60A5FA] flex items-center justify-center font-bold text-xs shrink-0 border border-[#2563EB]/40">
-            AS
+            <div className="w-7 h-7 rounded bg-[#2563EB]/25 text-[#60A5FA] flex items-center justify-center font-bold text-xs shrink-0 border border-[#2563EB]/40">
+            {initials}
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-[#F5F5F5] truncate leading-tight">Aarav Sharma</p>
-              <p className="text-[10px] text-[#A0A0A0] truncate">Admin • Tekkzy</p>
+              <p className="text-xs font-semibold text-[#F5F5F5] truncate leading-tight">{displayName}</p>
+              <p className="text-[10px] text-[#A0A0A0] truncate">{displayRole}</p>
             </div>
           )}
           {!isCollapsed && (
-            <Link to="/login" title="Logout" className="text-[#A0A0A0] hover:text-rose-400 p-1 transition-colors">
+            <Link
+              to="/login"
+              title="Logout"
+              onClick={() => clearSession()}
+              className="text-[#A0A0A0] hover:text-rose-400 p-1 transition-colors"
+            >
               <LogOut className="w-4 h-4" />
             </Link>
           )}
