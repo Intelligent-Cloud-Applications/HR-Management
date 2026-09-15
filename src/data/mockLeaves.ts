@@ -84,5 +84,39 @@ export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
     reason: "Personal appointment.",
     status: "Rejected",
     appliedOn: "2026-08-08"
+  },
+  {
+    id: "lv-5",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    leaveType: "Sick Leave",
+    startDate: "2026-07-18",
+    endDate: "2026-07-18",
+    days: 1,
+    reason: "Fever and rest advised.",
+    status: "Approved",
+    appliedOn: "2026-07-18"
+  },
+  {
+    id: "lv-6",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    leaveType: "Casual Leave",
+    startDate: "2026-09-04",
+    endDate: "2026-09-04",
+    days: 1,
+    reason: "Family appointment in the afternoon.",
+    status: "Pending",
+    appliedOn: "2026-08-29"
   }
 ]
+
+export function getMyLeaveHistory(employeeName: string, requests: LeaveRequest[]): LeaveRequest[] {
+  return requests.filter(
+    (req) => req.employeeName.trim().toLowerCase() === employeeName.trim().toLowerCase()
+  )
+}

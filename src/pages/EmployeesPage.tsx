@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { INITIAL_EMPLOYEES, Employee } from "@/data/mockEmployees"
+import React, { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/ui/PageHeader"
 import { Card } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/Input"
 import { Select } from "@/components/ui/Select"
 import { Badge } from "@/components/ui/Badge"
 import { Drawer } from "@/components/ui/Drawer"
-import { Modal } from "@/components/ui/Modal"
 import {
   Table,
   TableHeader,
@@ -18,52 +17,74 @@ import {
 } from "@/components/ui/Table"
 import { useToast } from "@/lib/toast"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import {
-  Search,
-  UserPlus,
-  Eye,
-  Trash2,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  CreditCard
-} from "lucide-react"
+import { ApiEmployee, EmployeeProfile, api } from "@/lib/api"
+import { getIdToken, getRole } from "@/lib/session"
+import { canAccess, canManageEmployees } from "@/lib/roles"
+import { Search, UserPlus, Trash2, Mail } from "lucide-react"
+
+const STATUS_LABEL: Record<string, string> = {
+  invited: "Invited",
+  active: "Active",
+  on_leave: "On Leave",
+  inactive: "Inactive",
+  terminated: "Terminated",
+}
+
+function statusVariant(status: string): "success" | "warning" | "secondary" | "outline" {
+  if (status === "active") return "success"
+  if (status === "on_leave" || status === "invited") return "warning"
+  return "secondary"
+}
 
 export const EmployeesPage: React.FC = () => {
-  const [employees, setEmployees] = useState<Employee[]>(INITIAL_EMPLOYEES)
+  const [employees, setEmployees] = useState<ApiEmployee[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [departmentFilter, setDepartmentFilter] = useState("All")
   const [statusFilter, setStatusFilter] = useState("All")
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [selected, setSelected] = useState<EmployeeProfile | null>(null)
+  const [loadingDetail, setLoadingDetail] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 8
-
   const { toast } = useToast()
+  const token = getIdToken()
+  const role = getRole()
+  const canWriteEmployees = canManageEmployees(role)
+  const canSeePayroll = canAccess(role, "payroll")
 
-  const [formData, setFormData] = useState({
-    name: "",
-    role: "",
-    department: "Engineering",
-    email: "",
-    phone: "",
-    location: "Bengaluru, India",
-    salary: "2000000",
-    manager: "Vikram Malhotra",
-    skills: "React, TypeScript, Node.js",
-  })
+  const loadEmployees = () => {
+    if (!token) {
+      setEmployees([])
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    api
+      .listEmployees(token)
+      .then((result) => setEmployees(result.employees))
+      .catch((err: Error) => {
+        toast({ title: "Could not load employees", description: err.message, type: "error" })
+        setEmployees([])
+      })
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    loadEmployees()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token])
+
+  const departments = ["All", ...Array.from(new Set(employees.map((e) => e.department_id).filter(Boolean)))] as string[]
 
   const filteredEmployees = employees.filter((emp) => {
+    const name = `${emp.first_name} ${emp.last_name}`
     const matchesSearch =
-      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.employeeCode.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesDept = departmentFilter === "All" || emp.department === departmentFilter
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (emp.designation_id || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.work_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.employee_code.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesDept = departmentFilter === "All" || emp.department_id === departmentFilter
     const matchesStatus = statusFilter === "All" || emp.status === statusFilter
-
     return matchesSearch && matchesDept && matchesStatus
   })
 
@@ -73,69 +94,46 @@ export const EmployeesPage: React.FC = () => {
     currentPage * itemsPerPage
   )
 
-  const handleAddEmployee = (e: React.FormEvent) => {
-    e.preventDefault()
-    const newEmp: Employee = {
-      id: `emp-${Date.now()}`,
-      employeeCode: `TW-${1000 + employees.length + 1}`,
-      name: formData.name,
-      role: formData.role,
-      department: formData.department,
-      email: formData.email,
-      phone: formData.phone || "+91 98765 43299",
-      location: formData.location,
-      status: "Active",
-      joiningDate: new Date().toISOString().split("T")[0],
-      salary: Number(formData.salary) || 1800000,
-      avatar: "",
-      rating: 4.8,
-      manager: formData.manager,
-      emergencyContact: {
-        name: "Family Contact",
-        relation: "Spouse",
-        phone: "+91 98765 00000",
-      },
-      skills: formData.skills.split(",").map((s) => s.trim()),
-      bankAccount: "HDFC0001999 •••• 1234",
-      panNumber: "ABCDE1234F",
+  const openEmployee = async (id: string) => {
+    if (!token) return
+    setLoadingDetail(true)
+    try {
+      setSelected(await api.getEmployee(token, id))
+    } catch (err) {
+      toast({ title: "Could not load employee", description: (err as Error).message, type: "error" })
+    } finally {
+      setLoadingDetail(false)
     }
-
-    setEmployees([newEmp, ...employees])
-    setIsAddModalOpen(false)
-    toast({
-      title: "Employee Added",
-      description: `${formData.name} (${newEmp.employeeCode}) onboarded.`,
-      type: "success",
-    })
-
-    setFormData({
-      name: "",
-      role: "",
-      department: "Engineering",
-      email: "",
-      phone: "",
-      location: "Bengaluru, India",
-      salary: "2000000",
-      manager: "Vikram Malhotra",
-      skills: "React, TypeScript, Node.js",
-    })
   }
 
-  const handleDeleteEmployee = (id: string, name: string) => {
-    setEmployees(employees.filter((emp) => emp.id !== id))
-    if (selectedEmployee?.id === id) setSelectedEmployee(null)
-    toast({
-      title: "Employee Deactivated",
-      description: `${name} removed from active roster.`,
-      type: "warning",
-    })
+  const handleDeactivate = async (id: string, name: string) => {
+    if (!token) return
+    try {
+      await api.deactivateEmployee(token, id)
+      setEmployees((prev) => prev.map((emp) => (emp._id === id ? { ...emp, status: "inactive" } : emp)))
+      if (selected?.employee._id === id) setSelected(null)
+      toast({ title: "Employee deactivated", description: `${name} login was disabled.`, type: "warning" })
+    } catch (err) {
+      toast({ title: "Could not deactivate employee", description: (err as Error).message, type: "error" })
+    }
+  }
+
+  const handleResendInvite = async () => {
+    if (!token || !selected) return
+    try {
+      const result = await api.resendInvite(token, selected.employee._id)
+      setSelected({ ...selected, employee: result.employee })
+      toast({ title: "Invitation resent", description: `Email sent to ${result.employee.work_email}.`, type: "success" })
+    } catch (err) {
+      toast({ title: "Could not resend invite", description: (err as Error).message, type: "error" })
+    }
   }
 
   return (
     <div className="space-y-4 font-sans">
       <PageHeader
         title="Employees"
-        description="Active workforce roster, compensation, and profile records."
+        description="Workforce roster backed by Cognito and DynamoDB."
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Employees" },
@@ -146,18 +144,27 @@ export const EmployeesPage: React.FC = () => {
           </span>
         }
         actions={
-          <Button variant="default" size="sm" onClick={() => setIsAddModalOpen(true)} className="gap-1.5">
-            <UserPlus className="w-3.5 h-3.5" />
-            Add Employee
-          </Button>
+          canWriteEmployees ? (
+          <Link to="/dashboard/employees/new">
+            <Button variant="default" size="sm" className="gap-1.5">
+              <UserPlus className="w-3.5 h-3.5" />
+              Add Employee
+            </Button>
+          </Link>
+          ) : undefined
         }
       />
 
-      {/* Filter and Search Bar */}
+      {!token && (
+        <Card className="p-4 text-sm text-muted-foreground">
+          Sign in as HR to load live employee records and send Cognito invitations.
+        </Card>
+      )}
+
       <div className="flex flex-col sm:flex-row items-center gap-2">
         <div className="flex-1 w-full">
           <Input
-            placeholder="Filter by name, role, email, code..."
+            placeholder="Filter by name, designation, email, code..."
             icon={<Search className="w-3.5 h-3.5" />}
             value={searchQuery}
             onChange={(e) => {
@@ -166,7 +173,6 @@ export const EmployeesPage: React.FC = () => {
             }}
           />
         </div>
-
         <div className="w-full sm:w-44">
           <Select
             value={departmentFilter}
@@ -174,17 +180,9 @@ export const EmployeesPage: React.FC = () => {
               setDepartmentFilter(e.target.value)
               setCurrentPage(1)
             }}
-            options={[
-              { value: "All", label: "All Departments" },
-              { value: "Engineering", label: "Engineering" },
-              { value: "Design", label: "Design" },
-              { value: "Human Resources", label: "Human Resources" },
-              { value: "Product", label: "Product" },
-              { value: "Finance", label: "Finance" },
-            ]}
+            options={departments.map((dept) => ({ value: dept, label: dept === "All" ? "All Departments" : dept }))}
           />
         </div>
-
         <div className="w-full sm:w-36">
           <Select
             value={statusFilter}
@@ -194,15 +192,15 @@ export const EmployeesPage: React.FC = () => {
             }}
             options={[
               { value: "All", label: "All Statuses" },
-              { value: "Active", label: "Active" },
-              { value: "On Leave", label: "On Leave" },
-              { value: "Inactive", label: "Inactive" },
+              { value: "invited", label: "Invited" },
+              { value: "active", label: "Active" },
+              { value: "on_leave", label: "On Leave" },
+              { value: "inactive", label: "Inactive" },
             ]}
           />
         </div>
       </div>
 
-      {/* Employee Data Table */}
       <Card>
         <Table>
           <TableHeader>
@@ -212,70 +210,65 @@ export const EmployeesPage: React.FC = () => {
               <TableHead>Department</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Salary (Annual)</TableHead>
+              <TableHead>Verification</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedEmployees.length > 0 ? (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  Loading employees…
+                </TableCell>
+              </TableRow>
+            ) : paginatedEmployees.length > 0 ? (
               paginatedEmployees.map((emp) => (
-                <TableRow key={emp.id}>
+                <TableRow key={emp._id}>
                   <TableCell className="font-mono text-muted-foreground text-[11px]">
-                    {emp.employeeCode}
+                    {emp.employee_code}
                   </TableCell>
-
                   <TableCell>
                     <div>
-                      <span className="font-medium text-foreground block">{emp.name}</span>
-                      <span className="text-muted-foreground text-[11px] block">{emp.role} • {emp.email}</span>
+                      <span className="font-medium text-foreground block">
+                        {emp.first_name} {emp.last_name}
+                      </span>
+                      <span className="text-muted-foreground text-[11px] block">
+                        {emp.designation_id || "—"} • {emp.work_email}
+                      </span>
                     </div>
                   </TableCell>
-
-                  <TableCell className="text-muted-foreground">
-                    {emp.department}
-                  </TableCell>
-
-                  <TableCell className="text-muted-foreground text-xs">
-                    {emp.location}
-                  </TableCell>
-
+                  <TableCell className="text-muted-foreground">{emp.department_id || "—"}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs">{emp.work_location_id || "—"}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        emp.status === "Active"
-                          ? "success"
-                          : emp.status === "On Leave"
-                          ? "warning"
-                          : "secondary"
-                      }
-                    >
-                      {emp.status}
+                    <Badge variant={statusVariant(emp.status)}>
+                      {STATUS_LABEL[emp.status] || emp.status}
                     </Badge>
                   </TableCell>
-
-                  <TableCell className="font-mono text-xs">
-                    {formatCurrency(emp.salary)}
+                  <TableCell className="text-[11px] text-muted-foreground capitalize">
+                    {(emp.profile_verification_status || "—").replaceAll("_", " ")}
                   </TableCell>
-
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSelectedEmployee(emp)}
+                        onClick={() => openEmployee(emp._id)}
                         className="h-7 px-2 text-xs"
+                        isLoading={loadingDetail && selected?.employee._id === emp._id}
                       >
                         View
                       </Button>
+                      {canWriteEmployees && (
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDeleteEmployee(emp.id, emp.name)}
+                        onClick={() => handleDeactivate(emp._id, `${emp.first_name} ${emp.last_name}`)}
                         className="h-7 w-7 text-muted-foreground hover:text-destructive"
                         title="Deactivate"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -283,14 +276,13 @@ export const EmployeesPage: React.FC = () => {
             ) : (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No records match the current filters.
+                  {token ? "No employee records yet. Add the first hire to send a Cognito invite." : "No records to show."}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
 
-        {/* Pagination Bar */}
         <div className="flex items-center justify-between p-3 border-t border-border text-xs text-muted-foreground">
           <div>
             Showing{" "}
@@ -303,7 +295,6 @@ export const EmployeesPage: React.FC = () => {
             </span>{" "}
             of <span className="font-mono font-medium text-foreground">{filteredEmployees.length}</span>
           </div>
-
           <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
@@ -330,178 +321,88 @@ export const EmployeesPage: React.FC = () => {
         </div>
       </Card>
 
-      {/* Employee Detail Drawer */}
       <Drawer
-        isOpen={!!selectedEmployee}
-        onClose={() => setSelectedEmployee(null)}
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
         title="Employee Details"
-        description="Workforce master record"
+        description="Live record from hr-management-backend"
         size="md"
       >
-        {selectedEmployee && (
+        {selected && (
           <div className="space-y-4 text-xs font-sans">
             <div className="p-3 rounded border border-border bg-muted/30 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-foreground">{selectedEmployee.name}</h3>
-                <p className="text-muted-foreground">{selectedEmployee.role} • {selectedEmployee.department}</p>
+                <h3 className="text-sm font-semibold text-foreground">
+                  {selected.employee.first_name} {selected.employee.last_name}
+                </h3>
+                <p className="text-muted-foreground">
+                  {selected.employee.designation_id || "—"} • {selected.employee.department_id || "—"}
+                </p>
               </div>
-              <Badge variant="outline" className="font-mono">{selectedEmployee.employeeCode}</Badge>
+              <Badge variant="outline" className="font-mono">{selected.employee.employee_code}</Badge>
             </div>
 
-            <div className="space-y-2">
-              <span className="font-medium text-muted-foreground uppercase text-[10px] tracking-wider block">
-                Contact & Coordinates
-              </span>
-              <div className="space-y-1.5 p-3 rounded border border-border bg-card">
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">Email:</span>
-                  <span className="text-foreground">{selectedEmployee.email}</span>
-                </div>
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">Phone:</span>
-                  <span className="text-foreground">{selectedEmployee.phone}</span>
-                </div>
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">Location:</span>
-                  <span className="text-foreground">{selectedEmployee.location}</span>
-                </div>
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">Joining Date:</span>
-                  <span className="text-foreground">{formatDate(selectedEmployee.joiningDate)}</span>
-                </div>
-              </div>
-            </div>
+            <DetailGroup title="Job">
+              <Row label="Work email" value={selected.employee.work_email} />
+              <Row label="Phone" value={selected.employee.phone} />
+              <Row label="Location" value={selected.employee.work_location_id} />
+              <Row label="Joined" value={selected.employee.date_of_joining ? formatDate(selected.employee.date_of_joining) : null} />
+              <Row label="Employment" value={selected.employee.employment_type?.replaceAll("_", " ")} />
+              <Row label="Status" value={STATUS_LABEL[selected.employee.status] || selected.employee.status} />
+              <Row label="Verification" value={selected.employee.profile_verification_status?.replaceAll("_", " ")} />
+            </DetailGroup>
 
-            <div className="space-y-2">
-              <span className="font-medium text-muted-foreground uppercase text-[10px] tracking-wider block">
-                Compensation & Statutory
-              </span>
-              <div className="space-y-1.5 p-3 rounded border border-border bg-card">
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">Fixed Annual CTC:</span>
-                  <span className="font-mono font-medium text-foreground">{formatCurrency(selectedEmployee.salary)}</span>
-                </div>
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">Bank Account:</span>
-                  <span className="font-mono text-foreground">{selectedEmployee.bankAccount}</span>
-                </div>
-                <div className="flex justify-between py-0.5">
-                  <span className="text-muted-foreground">PAN:</span>
-                  <span className="font-mono text-foreground">{selectedEmployee.panNumber}</span>
-                </div>
-              </div>
-            </div>
+            <DetailGroup title="Access">
+              <Row label="Role" value={selected.access?.role_id} />
+              <Row label="Login enabled" value={selected.access?.login_enabled ? "Yes" : "No"} />
+            </DetailGroup>
 
-            <div className="space-y-1.5">
-              <span className="font-medium text-muted-foreground uppercase text-[10px] tracking-wider block">
-                Skills
-              </span>
-              <div className="flex flex-wrap gap-1">
-                {selectedEmployee.skills.map((skill, i) => (
-                  <Badge key={i} variant="secondary" className="text-[11px]">
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+            {canSeePayroll && (
+            <DetailGroup title="Payroll">
+              <Row label="CTC" value={selected.payroll?.ctc != null ? formatCurrency(selected.payroll.ctc) : null} />
+              <Row label="Gross" value={selected.payroll?.gross_salary != null ? formatCurrency(selected.payroll.gross_salary) : null} />
+              <Row label="Bank" value={selected.payroll?.bank_account} />
+              <Row label="PAN" value={selected.payroll?.pan} />
+              <Row label="UAN" value={selected.payroll?.uan} />
+            </DetailGroup>
+            )}
 
-            <div className="flex justify-end pt-3 border-t border-border">
-              <Button variant="outline" size="sm" onClick={() => setSelectedEmployee(null)}>
+            {selected.emergency_contacts[0] && (
+              <DetailGroup title="Emergency contact">
+                <Row label="Name" value={selected.emergency_contacts[0].name} />
+                <Row label="Relationship" value={selected.emergency_contacts[0].relationship} />
+                <Row label="Phone" value={selected.emergency_contacts[0].phone} />
+              </DetailGroup>
+            )}
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-border">
+              {canWriteEmployees && selected.employee.profile_verification_status !== "verified" && (
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={handleResendInvite}>
+                  <Mail className="w-3.5 h-3.5" />
+                  Resend invite
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setSelected(null)}>
                 Close
               </Button>
             </div>
           </div>
         )}
       </Drawer>
-
-      {/* Add Employee Modal */}
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title="Add Employee"
-        description="Register a new staff member in TekkzyWork"
-        size="md"
-      >
-        <form onSubmit={handleAddEmployee} className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Full Name *</label>
-              <Input
-                required
-                placeholder="e.g. Siddharth Joshi"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Email *</label>
-              <Input
-                type="email"
-                required
-                placeholder="siddharth.j@tekkzy.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Role *</label>
-              <Input
-                required
-                placeholder="Senior Cloud Engineer"
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Department *</label>
-              <Select
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                options={[
-                  { value: "Engineering", label: "Engineering" },
-                  { value: "Design", label: "Design" },
-                  { value: "Human Resources", label: "Human Resources" },
-                  { value: "Product", label: "Product" },
-                  { value: "Finance", label: "Finance" },
-                  { value: "Sales", label: "Sales" },
-                ]}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Annual CTC (₹) *</label>
-              <Input
-                type="number"
-                required
-                placeholder="2400000"
-                value={formData.salary}
-                onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Location</label>
-              <Input
-                placeholder="Bengaluru, India"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-3 border-t border-border">
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsAddModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="default" size="sm">
-              Save Employee
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   )
 }
+
+const DetailGroup: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  <div className="space-y-2">
+    <span className="font-medium text-muted-foreground uppercase text-[10px] tracking-wider block">{title}</span>
+    <div className="space-y-1.5 p-3 rounded border border-border bg-card">{children}</div>
+  </div>
+)
+
+const Row: React.FC<{ label: string; value?: string | number | null }> = ({ label, value }) => (
+  <div className="flex justify-between py-0.5 gap-3">
+    <span className="text-muted-foreground">{label}:</span>
+    <span className="text-foreground text-right">{value || "—"}</span>
+  </div>
+)

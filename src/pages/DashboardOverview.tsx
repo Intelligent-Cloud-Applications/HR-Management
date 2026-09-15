@@ -6,7 +6,6 @@ import {
   CalendarDays,
   Briefcase,
   AlertCircle,
-  TrendingUp,
   UserPlus,
   FilePlus,
   CreditCard,
@@ -23,6 +22,9 @@ import { Modal } from "@/components/ui/Modal"
 import { Input } from "@/components/ui/Input"
 import { Select } from "@/components/ui/Select"
 import { useToast } from "@/lib/toast"
+import { EmployeeOverview } from "@/pages/EmployeeOverview"
+import { getRole } from "@/lib/session"
+import { canAccess, canManageEmployees, isEmployeeRole } from "@/lib/roles"
 import {
   AreaChart,
   Area,
@@ -70,27 +72,20 @@ const attendanceBarData = [
 
 export const DashboardOverview: React.FC = () => {
   const { toast } = useToast()
-  const [quickAddEmployeeOpen, setQuickAddEmployeeOpen] = useState(false)
   const [quickApplyLeaveOpen, setQuickApplyLeaveOpen] = useState(false)
-
-  // Form states
-  const [newEmpName, setNewEmpName] = useState("")
-  const [newEmpRole, setNewEmpRole] = useState("")
-  const [newEmpDept, setNewEmpDept] = useState("Engineering")
-
   const [leaveType, setLeaveType] = useState("Sick Leave")
   const [leaveDays, setLeaveDays] = useState("2")
+  const role = getRole()
+  const canAddEmployee = canManageEmployees(role)
+  const canApplyLeave = canAccess(role, "leave")
+  const canRunPayroll = canAccess(role, "payroll")
+  const canSeeEmployees = canAccess(role, "employees")
+  const canSeeRecruitment = canAccess(role, "recruitment")
+  const canSeeLeave = canAccess(role, "leave")
+  const canSeeApprovals = canSeeLeave && role !== "EMPLOYEE"
 
-  const handleQuickAddEmp = (e: React.FormEvent) => {
-    e.preventDefault()
-    setQuickAddEmployeeOpen(false)
-    toast({
-      title: "Employee Added",
-      description: `${newEmpName || "New Employee"} added to ${newEmpDept}.`,
-      type: "success",
-    })
-    setNewEmpName("")
-    setNewEmpRole("")
+  if (isEmployeeRole(role)) {
+    return <EmployeeOverview />
   }
 
   const handleQuickApplyLeave = (e: React.FormEvent) => {
@@ -106,6 +101,7 @@ export const DashboardOverview: React.FC = () => {
   const recentActivities = [
     {
       id: "act-1",
+      section: "leave",
       user: "Aarav Sharma",
       action: "approved leave request for",
       target: "Devendra Patel (3 days Sick Leave)",
@@ -113,6 +109,7 @@ export const DashboardOverview: React.FC = () => {
     },
     {
       id: "act-2",
+      section: "recruitment",
       user: "Tanvi Rao",
       action: "moved candidate to Offer stage:",
       target: "Meera Krishnan (Lead Designer)",
@@ -120,6 +117,7 @@ export const DashboardOverview: React.FC = () => {
     },
     {
       id: "act-3",
+      section: "payroll",
       user: "Kabir Mehta",
       action: "computed payroll batch for",
       target: "August 2026 (₹1.87 Cr)",
@@ -127,12 +125,13 @@ export const DashboardOverview: React.FC = () => {
     },
     {
       id: "act-4",
+      section: "performance",
       user: "Priya Sundaram",
       action: "submitted H1 2026 self-appraisal review",
       target: "Design Operations",
       time: "Yesterday",
     },
-  ]
+  ].filter((act) => canAccess(role, act.section))
 
   const upcomingEvents = [
     {
@@ -169,38 +168,43 @@ export const DashboardOverview: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="default"
-            onClick={() => setQuickAddEmployeeOpen(true)}
-            className="gap-1.5"
-          >
-            <UserPlus className="w-3.5 h-3.5" /> Add Employee
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setQuickApplyLeaveOpen(true)}
-            className="gap-1.5"
-          >
-            <FilePlus className="w-3.5 h-3.5" /> Apply Leave
-          </Button>
-          <Link to="/dashboard/payroll">
-            <Button size="sm" variant="secondary" className="gap-1.5">
-              <CreditCard className="w-3.5 h-3.5" /> Run Payroll
+          {canAddEmployee && (
+            <Link to="/dashboard/employees/new">
+              <Button size="sm" variant="default" className="gap-1.5">
+                <UserPlus className="w-3.5 h-3.5" /> Add Employee
+              </Button>
+            </Link>
+          )}
+          {canApplyLeave && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setQuickApplyLeaveOpen(true)}
+              className="gap-1.5"
+            >
+              <FilePlus className="w-3.5 h-3.5" /> Apply Leave
             </Button>
-          </Link>
+          )}
+          {canRunPayroll && (
+            <Link to="/dashboard/payroll">
+              <Button size="sm" variant="secondary" className="gap-1.5">
+                <CreditCard className="w-3.5 h-3.5" /> Run Payroll
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
       {/* KPI Cards Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        <StatCard
-          title="Total Employees"
-          value="128"
-          icon={<Users className="w-4 h-4" />}
-          trend={{ value: "+8.2%", isPositive: true, label: "vs last mo" }}
-        />
+        {canSeeEmployees && (
+          <StatCard
+            title="Total Employees"
+            value="128"
+            icon={<Users className="w-4 h-4" />}
+            trend={{ value: "+8.2%", isPositive: true, label: "vs last mo" }}
+          />
+        )}
 
         <StatCard
           title="Present Today"
@@ -209,29 +213,35 @@ export const DashboardOverview: React.FC = () => {
           trend={{ value: "94.2%", isPositive: true, label: "rate" }}
         />
 
-        <StatCard
-          title="On Leave"
-          value="4"
-          icon={<CalendarDays className="w-4 h-4" />}
-          description="2 Sick, 2 Casual"
-        />
+        {canSeeLeave && (
+          <StatCard
+            title="On Leave"
+            value="4"
+            icon={<CalendarDays className="w-4 h-4" />}
+            description="2 Sick, 2 Casual"
+          />
+        )}
 
-        <StatCard
-          title="Open Roles"
-          value="4"
-          icon={<Briefcase className="w-4 h-4" />}
-          description="93 Applicants"
-        />
+        {canSeeRecruitment && (
+          <StatCard
+            title="Open Roles"
+            value="4"
+            icon={<Briefcase className="w-4 h-4" />}
+            description="93 Applicants"
+          />
+        )}
 
-        <StatCard
-          title="Pending Approvals"
-          value="2"
-          icon={<AlertCircle className="w-4 h-4" />}
-          trend={{ value: "Action req", isPositive: false, label: "" }}
-        />
+        {canSeeApprovals && (
+          <StatCard
+            title="Pending Approvals"
+            value="2"
+            icon={<AlertCircle className="w-4 h-4" />}
+            trend={{ value: "Action req", isPositive: false, label: "" }}
+          />
+        )}
       </div>
 
-      {/* Analytics Charts Grid */}
+      {canSeeEmployees && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Headcount Growth Chart */}
         <Card className="lg:col-span-2 p-4">
@@ -330,6 +340,7 @@ export const DashboardOverview: React.FC = () => {
           </div>
         </Card>
       </div>
+      )}
 
       {/* Attendance Bar & Activity Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -409,12 +420,16 @@ export const DashboardOverview: React.FC = () => {
           </div>
 
           <div className="pt-2 border-t border-border text-center">
-            <Link
-              to="/dashboard/leave"
-              className="text-[11px] text-primary hover:underline"
-            >
-              Full Calendar →
-            </Link>
+            {canSeeLeave ? (
+              <Link
+                to="/dashboard/leave"
+                className="text-[11px] text-primary hover:underline"
+              >
+                Full Calendar →
+              </Link>
+            ) : (
+              <span className="text-[11px] text-muted-foreground">Upcoming dates</span>
+            )}
           </div>
         </Card>
       </div>
@@ -429,7 +444,8 @@ export const DashboardOverview: React.FC = () => {
           <span className="text-[10px] text-muted-foreground font-mono">Live</span>
         </CardHeader>
         <div className="divide-y divide-border">
-          {recentActivities.map((act) => (
+          {recentActivities.length > 0 ? (
+            recentActivities.map((act) => (
             <div key={act.id} className="py-2.5 flex items-center justify-between gap-3 text-xs first:pt-0 last:pb-0">
               <div>
                 <span className="font-semibold text-foreground">{act.user}</span>{" "}
@@ -438,65 +454,14 @@ export const DashboardOverview: React.FC = () => {
               </div>
               <span className="text-[11px] text-muted-foreground whitespace-nowrap font-mono">{act.time}</span>
             </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-xs text-muted-foreground py-2">No activity in your authorized modules.</p>
+          )}
         </div>
       </Card>
 
-      {/* Modal: Quick Add Employee */}
-      <Modal
-        isOpen={quickAddEmployeeOpen}
-        onClose={() => setQuickAddEmployeeOpen(false)}
-        title="Add Employee"
-        description="Quick profile creation"
-      >
-        <form onSubmit={handleQuickAddEmp} className="space-y-3">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Full Name</label>
-            <Input
-              required
-              placeholder="e.g. Siddharth Joshi"
-              value={newEmpName}
-              onChange={(e) => setNewEmpName(e.target.value)}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Role</label>
-              <Input
-                required
-                placeholder="Senior DevOps Lead"
-                value={newEmpRole}
-                onChange={(e) => setNewEmpRole(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Department</label>
-              <Select
-                value={newEmpDept}
-                onChange={(e) => setNewEmpDept(e.target.value)}
-                options={[
-                  { value: "Engineering", label: "Engineering" },
-                  { value: "Design", label: "Design" },
-                  { value: "Human Resources", label: "Human Resources" },
-                  { value: "Product", label: "Product" },
-                  { value: "Finance", label: "Finance" },
-                  { value: "Sales", label: "Sales" },
-                ]}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2 border-t border-border">
-            <Button type="button" variant="outline" size="sm" onClick={() => setQuickAddEmployeeOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="default" size="sm">
-              Add Employee
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Modal: Quick Apply Leave */}
+      {canApplyLeave && (
       <Modal
         isOpen={quickApplyLeaveOpen}
         onClose={() => setQuickApplyLeaveOpen(false)}
@@ -542,6 +507,7 @@ export const DashboardOverview: React.FC = () => {
           </div>
         </form>
       </Modal>
+      )}
     </div>
   )
 }

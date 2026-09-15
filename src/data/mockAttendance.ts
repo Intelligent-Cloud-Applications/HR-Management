@@ -113,5 +113,87 @@ export const RECENT_ATTENDANCE_LOGS: AttendanceRecord[] = [
     checkOut: "05:50 PM",
     workHours: "9h 00m",
     status: "Present"
+  },
+  {
+    id: "att-8",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    date: "2026-08-27",
+    checkIn: "09:04 AM",
+    checkOut: "06:12 PM",
+    workHours: "9h 08m",
+    status: "Present"
+  },
+  {
+    id: "att-9",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    date: "2026-08-26",
+    checkIn: "09:38 AM",
+    checkOut: "06:40 PM",
+    workHours: "9h 02m",
+    status: "Late"
+  },
+  {
+    id: "att-10",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    date: "2026-08-25",
+    checkIn: "08:58 AM",
+    checkOut: "05:50 PM",
+    workHours: "8h 52m",
+    status: "WFH"
+  },
+  {
+    id: "att-11",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    date: "2026-08-22",
+    checkIn: "09:01 AM",
+    checkOut: "06:05 PM",
+    workHours: "9h 04m",
+    status: "Present"
+  },
+  {
+    id: "att-12",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    avatar: "",
+    department: "Engineering",
+    date: "2026-08-21",
+    checkIn: "09:10 AM",
+    checkOut: "06:20 PM",
+    workHours: "9h 10m",
+    status: "Present"
   }
 ]
+
+export function getMyAttendanceLogs(employeeName: string, department: string): AttendanceRecord[] {
+  const own = RECENT_ATTENDANCE_LOGS.filter(
+    (log) => log.employeeName.toLowerCase() === employeeName.trim().toLowerCase()
+  )
+  if (own.length > 0) return own
+
+  const days = ["2026-08-28", "2026-08-27", "2026-08-26", "2026-08-25", "2026-08-22"]
+  const statuses: AttendanceRecord["status"][] = ["Present", "Present", "Late", "WFH", "Present"]
+  return days.map((date, index) => ({
+    id: `att-self-${index}`,
+    employeeId: "self",
+    employeeName,
+    avatar: "",
+    department,
+    date,
+    checkIn: index === 2 ? "09:36 AM" : "09:05 AM",
+    checkOut: "06:10 PM",
+    workHours: "9h 05m",
+    status: statuses[index],
+  }))
+}

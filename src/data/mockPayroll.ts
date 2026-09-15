@@ -87,6 +87,44 @@ export const INITIAL_PAYROLL_RECORDS: PayrollRecord[] = [
     disbursedDate: "2026-08-27"
   },
   {
+    id: "pay-3b",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    role: "Full Stack Tech Lead",
+    department: "Engineering",
+    avatar: "",
+    month: "July 2026",
+    baseSalary: 105000,
+    hra: 42000,
+    specialAllowance: 53000,
+    providentFund: 12600,
+    taxDeduction: 24000,
+    bonus: 0,
+    netSalary: 163400,
+    status: "Processed",
+    paymentMethod: "Direct Bank Transfer",
+    disbursedDate: "2026-07-30"
+  },
+  {
+    id: "pay-3c",
+    employeeId: "emp-3",
+    employeeName: "Rohan Varma",
+    role: "Full Stack Tech Lead",
+    department: "Engineering",
+    avatar: "",
+    month: "June 2026",
+    baseSalary: 105000,
+    hra: 42000,
+    specialAllowance: 53000,
+    providentFund: 12600,
+    taxDeduction: 24000,
+    bonus: 0,
+    netSalary: 163400,
+    status: "Processed",
+    paymentMethod: "Direct Bank Transfer",
+    disbursedDate: "2026-06-30"
+  },
+  {
     id: "pay-4",
     employeeId: "emp-4",
     employeeName: "Ananya Iyer",
@@ -142,3 +180,31 @@ export const INITIAL_PAYROLL_RECORDS: PayrollRecord[] = [
     paymentMethod: "Direct Bank Transfer"
   }
 ]
+
+export function getMyPayslips(employeeName: string): PayrollRecord[] {
+  const own = INITIAL_PAYROLL_RECORDS.filter(
+    (row) => row.employeeName.trim().toLowerCase() === employeeName.trim().toLowerCase()
+  )
+  if (own.length > 0) return own
+  return [
+    {
+      id: "pay-self",
+      employeeId: "self",
+      employeeName,
+      role: "Employee",
+      department: "Engineering",
+      avatar: "",
+      month: "August 2026",
+      baseSalary: 80000,
+      hra: 32000,
+      specialAllowance: 18000,
+      providentFund: 9600,
+      taxDeduction: 12000,
+      bonus: 0,
+      netSalary: 108400,
+      status: "Processed",
+      paymentMethod: "Direct Bank Transfer",
+      disbursedDate: "2026-08-27",
+    },
+  ]
+}

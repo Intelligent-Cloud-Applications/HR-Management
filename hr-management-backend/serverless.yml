@@ -1,0 +1,428 @@
+service: hr-management-backend
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  architecture: arm64
+  stage: ${opt:stage, "dev"}
+  region: ${opt:region, "us-east-2"}
+  stackName: hr-management-backend
+  memorySize: 512
+  timeout: 29
+  httpApi:
+    cors:
+      allowedOrigins:
+        - "*"
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Requested-With
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+  environment:
+    REGION: ${self:provider.region}
+    USER_POOL_ID: !Ref HrUserPool
+    USER_POOL_CLIENT_ID: !Ref HrUserPoolClient
+    DOCUMENTS_BUCKET: !Ref EmployeeDocumentsBucket
+    ENCRYPTION_KEY: ${env:HR_ENCRYPTION_KEY, "beta-hr-management-change-this-key"}
+    BOOTSTRAP_SECRET: ${env:HR_BOOTSTRAP_SECRET, "tekkzywork-beta-bootstrap"}
+    TABLE_EMPLOYEES: beta_hr_management_employees
+    TABLE_PERSONAL: beta_hr_management_employee_personal
+    TABLE_PAYROLL: beta_hr_management_employee_payroll
+    TABLE_DOCUMENTS: beta_hr_management_employee_documents
+    TABLE_EMERGENCY: beta_hr_management_employee_emergency_contacts
+    TABLE_ACCESS: beta_hr_management_employee_access
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:TransactWriteItems
+            - dynamodb:BatchWriteItem
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/beta_hr_management_*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/beta_hr_management_*/index/*
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminAddUserToGroup
+            - cognito-idp:AdminRemoveUserFromGroup
+            - cognito-idp:AdminDisableUser
+            - cognito-idp:AdminEnableUser
+            - cognito-idp:AdminGetUser
+            - cognito-idp:AdminUpdateUserAttributes
+            - cognito-idp:AdminSetUserPassword
+            - cognito-idp:AdminDeleteUser
+            - cognito-idp:AdminResetUserPassword
+          Resource:
+            - !GetAtt HrUserPool.Arn
+        - Effect: Allow
+          Action:
+            - cognito-idp:InitiateAuth
+            - cognito-idp:RespondToAuthChallenge
+            - cognito-idp:ForgotPassword
+            - cognito-idp:ConfirmForgotPassword
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource:
+            - !Sub ${EmployeeDocumentsBucket.Arn}/*
+
+plugins:
+  - serverless-esbuild
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    target: node20
+    platform: node
+    exclude: []
+
+functions:
+  api:
+    handler: src/handler.handler
+    events:
+      - httpApi:
+          path: /
+          method: ANY
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+
+resources:
+  Resources:
+    EmployeesTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: beta_hr_management_employees
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: _id
+            AttributeType: S
+          - AttributeName: employee_code
+            AttributeType: S
+          - AttributeName: work_email
+            AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: created_at
+            AttributeType: S
+        KeySchema:
+          - AttributeName: _id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: employee_code-index
+            KeySchema:
+              - AttributeName: employee_code
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: work_email-index
+            KeySchema:
+              - AttributeName: work_email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: status-index
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+              - AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Project
+            Value: hr-management
+          - Key: Environment
+            Value: beta
+
+    EmployeePersonalTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: beta_hr_management_employee_personal
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: employee_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: employee_id
+            KeyType: HASH
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Project
+            Value: hr-management
+
+    EmployeePayrollTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: beta_hr_management_employee_payroll
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: employee_id
+            AttributeType: S
+          - AttributeName: effective_from
+            AttributeType: S
+        KeySchema:
+          - AttributeName: employee_id
+            KeyType: HASH
+          - AttributeName: effective_from
+            KeyType: RANGE
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Project
+            Value: hr-management
+
+    EmployeeDocumentsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: beta_hr_management_employee_documents
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: _id
+            AttributeType: S
+          - AttributeName: employee_id
+            AttributeType: S
+          - AttributeName: created_at
+            AttributeType: S
+        KeySchema:
+          - AttributeName: _id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: employee_id-index
+            KeySchema:
+              - AttributeName: employee_id
+                KeyType: HASH
+              - AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Project
+            Value: hr-management
+
+    EmployeeEmergencyContactsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: beta_hr_management_employee_emergency_contacts
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: employee_id
+            AttributeType: S
+          - AttributeName: contact_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: employee_id
+            KeyType: HASH
+          - AttributeName: contact_id
+            KeyType: RANGE
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Project
+            Value: hr-management
+
+    EmployeeAccessTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: beta_hr_management_employee_access
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: employee_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: employee_id
+            KeyType: HASH
+        SSESpecification:
+          SSEEnabled: true
+        Tags:
+          - Key: Project
+            Value: hr-management
+
+    EmployeeDocumentsBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: !Sub beta-hr-management-employee-documents-${AWS::AccountId}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - PUT
+                - GET
+                - HEAD
+              AllowedOrigins:
+                - "*"
+              MaxAge: 3000
+        Tags:
+          - Key: Project
+            Value: hr-management
+
+    HrUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: beta-hr-management-users
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireUppercase: true
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: true
+            TemporaryPasswordValidityDays: 7
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: true
+          InviteMessageTemplate:
+            EmailSubject: "Welcome to TekkzyWork — set up your account"
+            EmailMessage: "Hello {username}, you have been invited to TekkzyWork HR. Your temporary password is {####}. Sign in, set a new password, then review your profile and click Verify."
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+          - Name: given_name
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+          - Name: family_name
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+          - Name: phone_number
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+          - Name: employee_id
+            AttributeDataType: String
+            Mutable: false
+            Required: false
+          - Name: role
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+        UserPoolTags:
+          Project: hr-management
+          Environment: beta
+
+    HrUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: beta-hr-management-web
+        UserPoolId: !Ref HrUserPool
+        GenerateSecret: false
+        ExplicitAuthFlows:
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+          - ALLOW_USER_SRP_AUTH
+        PreventUserExistenceErrors: ENABLED
+        AccessTokenValidity: 8
+        IdTokenValidity: 8
+        RefreshTokenValidity: 30
+        TokenValidityUnits:
+          AccessToken: hours
+          IdToken: hours
+          RefreshToken: days
+        SupportedIdentityProviders:
+          - COGNITO
+
+    SuperAdminGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: SUPER_ADMIN
+        Description: Full HR system administrator
+        UserPoolId: !Ref HrUserPool
+        Precedence: 1
+
+    HrLeadGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: HR_LEAD
+        Description: HR lead with employee write access
+        UserPoolId: !Ref HrUserPool
+        Precedence: 2
+
+    FinanceGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: FINANCE
+        Description: Payroll and compensation access
+        UserPoolId: !Ref HrUserPool
+        Precedence: 3
+
+    ManagerGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: MANAGER
+        Description: Team directory access
+        UserPoolId: !Ref HrUserPool
+        Precedence: 4
+
+    EmployeeGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        GroupName: EMPLOYEE
+        Description: Self-service employee
+        UserPoolId: !Ref HrUserPool
+        Precedence: 5
+
+  Outputs:
+    ApiUrl:
+      Description: HTTP API endpoint
+      Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com
+    UserPoolId:
+      Description: Cognito user pool
+      Value: !Ref HrUserPool
+    UserPoolClientId:
+      Description: Cognito app client
+      Value: !Ref HrUserPoolClient
+    DocumentsBucketName:
+      Value: !Ref EmployeeDocumentsBucket
+    EmployeesTableName:
+      Value: beta_hr_management_employees
